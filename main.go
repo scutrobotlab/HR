@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"gorm.io/gen/examples/biz"
-	"gorm.io/gen/examples/conf"
-	"gorm.io/gen/examples/dal"
+	"github.com/scutrobotlab/HR/biz"
+	"github.com/scutrobotlab/HR/conf"
+	"github.com/scutrobotlab/HR/dal"
 )
 
 func init() {
-	dal.DB = dal.ConnectDB(conf.MySQLDSN).Debug()
+	dal.DB = dal.ConnectDB(conf.Postgres).Debug()
 }
 
 func main() {

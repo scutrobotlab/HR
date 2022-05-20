@@ -1,14 +1,14 @@
 package main
 
 import (
+	conf "github.com/scutrobotlab/HR/conf"
+	dal "github.com/scutrobotlab/HR/dal"
+	"github.com/scutrobotlab/HR/dal/model"
 	"gorm.io/gen"
-	"gorm.io/gen/examples/conf"
-	"gorm.io/gen/examples/dal"
-	"gorm.io/gen/examples/dal/model"
 )
 
 func init() {
-	dal.DB = dal.ConnectDB(conf.MySQLDSN).Debug()
+	dal.DB = dal.ConnectDB(conf.Postgres).Debug()
 
 	prepare(dal.DB) // prepare table for generate
 }

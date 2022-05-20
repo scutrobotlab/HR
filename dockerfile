@@ -7,7 +7,3 @@ RUN npm ci
 FROM build-env as build
 COPY . /app
 RUN npm run build
-
-FROM nginx:stable as runtime
-COPY nginx/nginx.conf /etc/nginx/
-COPY --from=build /app/dist/ /usr/share/nginx/html
