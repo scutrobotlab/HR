@@ -9,13 +9,6 @@ import (
 
 func init() {
 	dal.DB = dal.ConnectDB(conf.Postgres).Debug()
-
-	prepare(dal.DB) // prepare table for generate
-}
-
-var dataMap = map[string]func(detailType string) (dataType string){
-	"int":  func(detailType string) (dataType string) { return "int64" },
-	"json": func(string) string { return "json.RawMessage" },
 }
 
 func main() {
@@ -32,11 +25,18 @@ func main() {
 
 	g.UseDB(dal.DB)
 
-	g.WithDataTypeMap(dataMap)
-	g.WithJSONTagNameStrategy(func(c string) string { return "-" })
-
-	g.ApplyBasic(model.Customer{})
-	g.ApplyBasic(g.GenerateAllTable()...)
+	g.ApplyBasic(
+		model.Admin{},
+		model.Admit{},
+		model.Applicant{},
+		model.Group{},
+		model.Intent{},
+		model.OptionalTime{},
+		model.Question{},
+		model.Remark{},
+		model.Score{},
+		model.Setting{},
+		model.Standard{})
 
 	g.Execute()
 }
