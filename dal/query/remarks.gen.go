@@ -25,9 +25,46 @@ func newRemark(db *gorm.DB) remark {
 
 	tableName := _remark.remarkDo.TableName()
 	_remark.ALL = field.NewField(tableName, "*")
-	_remark.AdminID = field.NewInt32(tableName, "admin_id")
-	_remark.ApplicantID = field.NewInt32(tableName, "applicant_id")
+	_remark.AdminID = field.NewUint(tableName, "admin_id")
+	_remark.ApplicantID = field.NewUint(tableName, "applicant_id")
 	_remark.TheRemark = field.NewString(tableName, "the_remark")
+	_remark.Admin = remarkAdmin{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Admin", "model.Admin"),
+		Standard: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Admin.Standard", "model.Standard"),
+		},
+	}
+
+	_remark.Applicant = remarkApplicant{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Applicant", "model.Applicant"),
+		Intents: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			OptionalTime struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Intents", "model.Intent"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.Applicant", "model.Applicant"),
+			},
+			OptionalTime: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
+			},
+		},
+	}
 
 	_remark.fillFieldMap()
 
@@ -38,9 +75,12 @@ type remark struct {
 	remarkDo remarkDo
 
 	ALL         field.Field
-	AdminID     field.Int32
-	ApplicantID field.Int32
+	AdminID     field.Uint
+	ApplicantID field.Uint
 	TheRemark   field.String
+	Admin       remarkAdmin
+
+	Applicant remarkApplicant
 
 	fieldMap map[string]field.Expr
 }
@@ -57,8 +97,8 @@ func (r remark) As(alias string) *remark {
 
 func (r *remark) updateTableName(table string) *remark {
 	r.ALL = field.NewField(table, "*")
-	r.AdminID = field.NewInt32(table, "admin_id")
-	r.ApplicantID = field.NewInt32(table, "applicant_id")
+	r.AdminID = field.NewUint(table, "admin_id")
+	r.ApplicantID = field.NewUint(table, "applicant_id")
 	r.TheRemark = field.NewString(table, "the_remark")
 
 	r.fillFieldMap()
@@ -82,15 +122,162 @@ func (r *remark) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (r *remark) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 3)
+	r.fieldMap = make(map[string]field.Expr, 5)
 	r.fieldMap["admin_id"] = r.AdminID
 	r.fieldMap["applicant_id"] = r.ApplicantID
 	r.fieldMap["the_remark"] = r.TheRemark
+
 }
 
 func (r remark) clone(db *gorm.DB) remark {
 	r.remarkDo.ReplaceDB(db)
 	return r
+}
+
+type remarkAdmin struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Standard struct {
+		field.RelationField
+	}
+}
+
+func (a remarkAdmin) Where(conds ...field.Expr) *remarkAdmin {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a remarkAdmin) WithContext(ctx context.Context) *remarkAdmin {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a remarkAdmin) Model(m *model.Remark) *remarkAdminTx {
+	return &remarkAdminTx{a.db.Model(m).Association(a.Name())}
+}
+
+type remarkAdminTx struct{ tx *gorm.Association }
+
+func (a remarkAdminTx) Find() (result *model.Admin, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a remarkAdminTx) Append(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a remarkAdminTx) Replace(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a remarkAdminTx) Delete(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a remarkAdminTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a remarkAdminTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type remarkApplicant struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Intents struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		OptionalTime struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a remarkApplicant) Where(conds ...field.Expr) *remarkApplicant {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a remarkApplicant) WithContext(ctx context.Context) *remarkApplicant {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a remarkApplicant) Model(m *model.Remark) *remarkApplicantTx {
+	return &remarkApplicantTx{a.db.Model(m).Association(a.Name())}
+}
+
+type remarkApplicantTx struct{ tx *gorm.Association }
+
+func (a remarkApplicantTx) Find() (result *model.Applicant, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a remarkApplicantTx) Append(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a remarkApplicantTx) Replace(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a remarkApplicantTx) Delete(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a remarkApplicantTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a remarkApplicantTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type remarkDo struct{ gen.DO }

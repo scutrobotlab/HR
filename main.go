@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/scutrobotlab/HR/biz"
@@ -20,5 +19,5 @@ func main() {
 	defer fmt.Println("bye~")
 
 	query.SetDefault(dal.DB)
-	biz.Query(context.Background())
+	biz.Run()
 }

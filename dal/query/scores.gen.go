@@ -25,13 +25,56 @@ func newScore(db *gorm.DB) score {
 
 	tableName := _score.scoreDo.TableName()
 	_score.ALL = field.NewField(tableName, "*")
-	_score.AdminID = field.NewInt32(tableName, "admin_id")
-	_score.ApplicantID = field.NewInt32(tableName, "applicant_id")
-	_score.GroupID = field.NewInt32(tableName, "group_id")
+	_score.AdminID = field.NewUint(tableName, "admin_id")
+	_score.ApplicantID = field.NewUint(tableName, "applicant_id")
+	_score.Group = field.NewString(tableName, "group")
 	_score.Score = field.NewFloat64(tableName, "score")
-	_score.StandardID = field.NewInt32(tableName, "standard_id")
+	_score.StandardID = field.NewUint(tableName, "standard_id")
 	_score.EvaluationDetails = field.NewString(tableName, "evaluation_details")
 	_score.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_score.Admin = scoreAdmin{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Admin", "model.Admin"),
+		Standard: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Admin.Standard", "model.Standard"),
+		},
+	}
+
+	_score.Applicant = scoreApplicant{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Applicant", "model.Applicant"),
+		Intents: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			OptionalTime struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Intents", "model.Intent"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.Applicant", "model.Applicant"),
+			},
+			OptionalTime: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
+			},
+		},
+	}
+
+	_score.Standard = scoreStandard{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Standard", "model.Standard"),
+	}
 
 	_score.fillFieldMap()
 
@@ -42,13 +85,18 @@ type score struct {
 	scoreDo scoreDo
 
 	ALL               field.Field
-	AdminID           field.Int32
-	ApplicantID       field.Int32
-	GroupID           field.Int32
+	AdminID           field.Uint
+	ApplicantID       field.Uint
+	Group             field.String
 	Score             field.Float64
-	StandardID        field.Int32
+	StandardID        field.Uint
 	EvaluationDetails field.String
 	UpdatedAt         field.Time
+	Admin             scoreAdmin
+
+	Applicant scoreApplicant
+
+	Standard scoreStandard
 
 	fieldMap map[string]field.Expr
 }
@@ -65,11 +113,11 @@ func (s score) As(alias string) *score {
 
 func (s *score) updateTableName(table string) *score {
 	s.ALL = field.NewField(table, "*")
-	s.AdminID = field.NewInt32(table, "admin_id")
-	s.ApplicantID = field.NewInt32(table, "applicant_id")
-	s.GroupID = field.NewInt32(table, "group_id")
+	s.AdminID = field.NewUint(table, "admin_id")
+	s.ApplicantID = field.NewUint(table, "applicant_id")
+	s.Group = field.NewString(table, "group")
 	s.Score = field.NewFloat64(table, "score")
-	s.StandardID = field.NewInt32(table, "standard_id")
+	s.StandardID = field.NewUint(table, "standard_id")
 	s.EvaluationDetails = field.NewString(table, "evaluation_details")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 
@@ -94,19 +142,232 @@ func (s *score) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *score) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 7)
+	s.fieldMap = make(map[string]field.Expr, 10)
 	s.fieldMap["admin_id"] = s.AdminID
 	s.fieldMap["applicant_id"] = s.ApplicantID
-	s.fieldMap["group_id"] = s.GroupID
+	s.fieldMap["group"] = s.Group
 	s.fieldMap["score"] = s.Score
 	s.fieldMap["standard_id"] = s.StandardID
 	s.fieldMap["evaluation_details"] = s.EvaluationDetails
 	s.fieldMap["updated_at"] = s.UpdatedAt
+
 }
 
 func (s score) clone(db *gorm.DB) score {
 	s.scoreDo.ReplaceDB(db)
 	return s
+}
+
+type scoreAdmin struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Standard struct {
+		field.RelationField
+	}
+}
+
+func (a scoreAdmin) Where(conds ...field.Expr) *scoreAdmin {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a scoreAdmin) WithContext(ctx context.Context) *scoreAdmin {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a scoreAdmin) Model(m *model.Score) *scoreAdminTx {
+	return &scoreAdminTx{a.db.Model(m).Association(a.Name())}
+}
+
+type scoreAdminTx struct{ tx *gorm.Association }
+
+func (a scoreAdminTx) Find() (result *model.Admin, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a scoreAdminTx) Append(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a scoreAdminTx) Replace(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a scoreAdminTx) Delete(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a scoreAdminTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a scoreAdminTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type scoreApplicant struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Intents struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		OptionalTime struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a scoreApplicant) Where(conds ...field.Expr) *scoreApplicant {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a scoreApplicant) WithContext(ctx context.Context) *scoreApplicant {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a scoreApplicant) Model(m *model.Score) *scoreApplicantTx {
+	return &scoreApplicantTx{a.db.Model(m).Association(a.Name())}
+}
+
+type scoreApplicantTx struct{ tx *gorm.Association }
+
+func (a scoreApplicantTx) Find() (result *model.Applicant, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a scoreApplicantTx) Append(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a scoreApplicantTx) Replace(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a scoreApplicantTx) Delete(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a scoreApplicantTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a scoreApplicantTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type scoreStandard struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a scoreStandard) Where(conds ...field.Expr) *scoreStandard {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a scoreStandard) WithContext(ctx context.Context) *scoreStandard {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a scoreStandard) Model(m *model.Score) *scoreStandardTx {
+	return &scoreStandardTx{a.db.Model(m).Association(a.Name())}
+}
+
+type scoreStandardTx struct{ tx *gorm.Association }
+
+func (a scoreStandardTx) Find() (result *model.Standard, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a scoreStandardTx) Append(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a scoreStandardTx) Replace(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a scoreStandardTx) Delete(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a scoreStandardTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a scoreStandardTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type scoreDo struct{ gen.DO }

@@ -30,7 +30,12 @@ func newAdmin(db *gorm.DB) admin {
 	_admin.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_admin.DeletedAt = field.NewField(tableName, "deleted_at")
 	_admin.Name = field.NewString(tableName, "name")
-	_admin.DefaultStandard = field.NewInt32(tableName, "default_standard")
+	_admin.StandardID = field.NewUint(tableName, "standard_id")
+	_admin.Standard = adminStandard{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Standard", "model.Standard"),
+	}
 
 	_admin.fillFieldMap()
 
@@ -40,13 +45,14 @@ func newAdmin(db *gorm.DB) admin {
 type admin struct {
 	adminDo adminDo
 
-	ALL             field.Field
-	ID              field.Uint
-	CreatedAt       field.Time
-	UpdatedAt       field.Time
-	DeletedAt       field.Field
-	Name            field.String
-	DefaultStandard field.Int32
+	ALL        field.Field
+	ID         field.Uint
+	CreatedAt  field.Time
+	UpdatedAt  field.Time
+	DeletedAt  field.Field
+	Name       field.String
+	StandardID field.Uint
+	Standard   adminStandard
 
 	fieldMap map[string]field.Expr
 }
@@ -68,7 +74,7 @@ func (a *admin) updateTableName(table string) *admin {
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.Name = field.NewString(table, "name")
-	a.DefaultStandard = field.NewInt32(table, "default_standard")
+	a.StandardID = field.NewUint(table, "standard_id")
 
 	a.fillFieldMap()
 
@@ -91,18 +97,85 @@ func (a *admin) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *admin) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 6)
+	a.fieldMap = make(map[string]field.Expr, 7)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["name"] = a.Name
-	a.fieldMap["default_standard"] = a.DefaultStandard
+	a.fieldMap["standard_id"] = a.StandardID
+
 }
 
 func (a admin) clone(db *gorm.DB) admin {
 	a.adminDo.ReplaceDB(db)
 	return a
+}
+
+type adminStandard struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a adminStandard) Where(conds ...field.Expr) *adminStandard {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a adminStandard) WithContext(ctx context.Context) *adminStandard {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a adminStandard) Model(m *model.Admin) *adminStandardTx {
+	return &adminStandardTx{a.db.Model(m).Association(a.Name())}
+}
+
+type adminStandardTx struct{ tx *gorm.Association }
+
+func (a adminStandardTx) Find() (result *model.Standard, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a adminStandardTx) Append(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a adminStandardTx) Replace(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a adminStandardTx) Delete(values ...*model.Standard) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a adminStandardTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a adminStandardTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type adminDo struct{ gen.DO }

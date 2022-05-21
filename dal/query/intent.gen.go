@@ -25,10 +25,46 @@ func newIntent(db *gorm.DB) intent {
 
 	tableName := _intent.intentDo.TableName()
 	_intent.ALL = field.NewField(tableName, "*")
-	_intent.ID = field.NewInt32(tableName, "id")
-	_intent.ApplicantID = field.NewInt32(tableName, "applicant_id")
-	_intent.GroupID = field.NewInt32(tableName, "group_id")
+	_intent.ID = field.NewUint(tableName, "id")
+	_intent.CreatedAt = field.NewTime(tableName, "created_at")
+	_intent.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_intent.DeletedAt = field.NewField(tableName, "deleted_at")
+	_intent.ApplicantID = field.NewUint(tableName, "applicant_id")
+	_intent.Group = field.NewString(tableName, "group")
 	_intent.IntentRank = field.NewInt16(tableName, "intent_rank")
+	_intent.OptionalTimeID = field.NewUint(tableName, "optional_time_id")
+	_intent.Applicant = intentApplicant{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Applicant", "model.Applicant"),
+		Intents: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			OptionalTime struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Intents", "model.Intent"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.Applicant", "model.Applicant"),
+			},
+			OptionalTime: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
+			},
+		},
+	}
+
+	_intent.OptionalTime = intentOptionalTime{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("OptionalTime", "model.OptionalTime"),
+	}
 
 	_intent.fillFieldMap()
 
@@ -38,11 +74,18 @@ func newIntent(db *gorm.DB) intent {
 type intent struct {
 	intentDo intentDo
 
-	ALL         field.Field
-	ID          field.Int32
-	ApplicantID field.Int32
-	GroupID     field.Int32
-	IntentRank  field.Int16
+	ALL            field.Field
+	ID             field.Uint
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	DeletedAt      field.Field
+	ApplicantID    field.Uint
+	Group          field.String
+	IntentRank     field.Int16
+	OptionalTimeID field.Uint
+	Applicant      intentApplicant
+
+	OptionalTime intentOptionalTime
 
 	fieldMap map[string]field.Expr
 }
@@ -59,10 +102,14 @@ func (i intent) As(alias string) *intent {
 
 func (i *intent) updateTableName(table string) *intent {
 	i.ALL = field.NewField(table, "*")
-	i.ID = field.NewInt32(table, "id")
-	i.ApplicantID = field.NewInt32(table, "applicant_id")
-	i.GroupID = field.NewInt32(table, "group_id")
+	i.ID = field.NewUint(table, "id")
+	i.CreatedAt = field.NewTime(table, "created_at")
+	i.UpdatedAt = field.NewTime(table, "updated_at")
+	i.DeletedAt = field.NewField(table, "deleted_at")
+	i.ApplicantID = field.NewUint(table, "applicant_id")
+	i.Group = field.NewString(table, "group")
 	i.IntentRank = field.NewInt16(table, "intent_rank")
+	i.OptionalTimeID = field.NewUint(table, "optional_time_id")
 
 	i.fillFieldMap()
 
@@ -85,16 +132,163 @@ func (i *intent) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (i *intent) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 4)
+	i.fieldMap = make(map[string]field.Expr, 10)
 	i.fieldMap["id"] = i.ID
+	i.fieldMap["created_at"] = i.CreatedAt
+	i.fieldMap["updated_at"] = i.UpdatedAt
+	i.fieldMap["deleted_at"] = i.DeletedAt
 	i.fieldMap["applicant_id"] = i.ApplicantID
-	i.fieldMap["group_id"] = i.GroupID
+	i.fieldMap["group"] = i.Group
 	i.fieldMap["intent_rank"] = i.IntentRank
+	i.fieldMap["optional_time_id"] = i.OptionalTimeID
+
 }
 
 func (i intent) clone(db *gorm.DB) intent {
 	i.intentDo.ReplaceDB(db)
 	return i
+}
+
+type intentApplicant struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Intents struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		OptionalTime struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a intentApplicant) Where(conds ...field.Expr) *intentApplicant {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a intentApplicant) WithContext(ctx context.Context) *intentApplicant {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a intentApplicant) Model(m *model.Intent) *intentApplicantTx {
+	return &intentApplicantTx{a.db.Model(m).Association(a.Name())}
+}
+
+type intentApplicantTx struct{ tx *gorm.Association }
+
+func (a intentApplicantTx) Find() (result *model.Applicant, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a intentApplicantTx) Append(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a intentApplicantTx) Replace(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a intentApplicantTx) Delete(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a intentApplicantTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a intentApplicantTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type intentOptionalTime struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a intentOptionalTime) Where(conds ...field.Expr) *intentOptionalTime {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a intentOptionalTime) WithContext(ctx context.Context) *intentOptionalTime {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a intentOptionalTime) Model(m *model.Intent) *intentOptionalTimeTx {
+	return &intentOptionalTimeTx{a.db.Model(m).Association(a.Name())}
+}
+
+type intentOptionalTimeTx struct{ tx *gorm.Association }
+
+func (a intentOptionalTimeTx) Find() (result *model.OptionalTime, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a intentOptionalTimeTx) Append(values ...*model.OptionalTime) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a intentOptionalTimeTx) Replace(values ...*model.OptionalTime) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a intentOptionalTimeTx) Delete(values ...*model.OptionalTime) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a intentOptionalTimeTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a intentOptionalTimeTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type intentDo struct{ gen.DO }

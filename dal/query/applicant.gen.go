@@ -34,6 +34,29 @@ func newApplicant(db *gorm.DB) applicant {
 	_applicant.Phone = field.NewString(tableName, "phone")
 	_applicant.Avatar = field.NewString(tableName, "avatar")
 	_applicant.Form = field.NewString(tableName, "form")
+	_applicant.Intents = applicantIntents{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Intents", "model.Intent"),
+		Applicant: struct {
+			field.RelationField
+			Intents struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Intents.Applicant", "model.Applicant"),
+			Intents: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Intents.Applicant.Intents", "model.Intent"),
+			},
+		},
+		OptionalTime: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Intents.OptionalTime", "model.OptionalTime"),
+		},
+	}
 
 	_applicant.fillFieldMap()
 
@@ -53,6 +76,7 @@ type applicant struct {
 	Phone     field.String
 	Avatar    field.String
 	Form      field.String
+	Intents   applicantIntents
 
 	fieldMap map[string]field.Expr
 }
@@ -102,7 +126,7 @@ func (a *applicant) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *applicant) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 9)
+	a.fieldMap = make(map[string]field.Expr, 10)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
@@ -112,11 +136,88 @@ func (a *applicant) fillFieldMap() {
 	a.fieldMap["phone"] = a.Phone
 	a.fieldMap["avatar"] = a.Avatar
 	a.fieldMap["form"] = a.Form
+
 }
 
 func (a applicant) clone(db *gorm.DB) applicant {
 	a.applicantDo.ReplaceDB(db)
 	return a
+}
+
+type applicantIntents struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Applicant struct {
+		field.RelationField
+		Intents struct {
+			field.RelationField
+		}
+	}
+	OptionalTime struct {
+		field.RelationField
+	}
+}
+
+func (a applicantIntents) Where(conds ...field.Expr) *applicantIntents {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a applicantIntents) WithContext(ctx context.Context) *applicantIntents {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a applicantIntents) Model(m *model.Applicant) *applicantIntentsTx {
+	return &applicantIntentsTx{a.db.Model(m).Association(a.Name())}
+}
+
+type applicantIntentsTx struct{ tx *gorm.Association }
+
+func (a applicantIntentsTx) Find() (result *model.Intent, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a applicantIntentsTx) Append(values ...*model.Intent) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a applicantIntentsTx) Replace(values ...*model.Intent) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a applicantIntentsTx) Delete(values ...*model.Intent) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a applicantIntentsTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a applicantIntentsTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type applicantDo struct{ gen.DO }

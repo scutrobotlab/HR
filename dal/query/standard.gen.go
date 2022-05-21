@@ -31,7 +31,7 @@ func newStandard(db *gorm.DB) standard {
 	_standard.DeletedAt = field.NewField(tableName, "deleted_at")
 	_standard.Name = field.NewString(tableName, "name")
 	_standard.Content = field.NewString(tableName, "content")
-	_standard.AdminID = field.NewInt32(tableName, "admin_id")
+	_standard.AdminID = field.NewUint(tableName, "admin_id")
 
 	_standard.fillFieldMap()
 
@@ -48,7 +48,7 @@ type standard struct {
 	DeletedAt field.Field
 	Name      field.String
 	Content   field.String
-	AdminID   field.Int32
+	AdminID   field.Uint
 
 	fieldMap map[string]field.Expr
 }
@@ -71,7 +71,7 @@ func (s *standard) updateTableName(table string) *standard {
 	s.DeletedAt = field.NewField(table, "deleted_at")
 	s.Name = field.NewString(table, "name")
 	s.Content = field.NewString(table, "content")
-	s.AdminID = field.NewInt32(table, "admin_id")
+	s.AdminID = field.NewUint(table, "admin_id")
 
 	s.fillFieldMap()
 

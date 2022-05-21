@@ -26,10 +26,13 @@ func newOptionalTime(db *gorm.DB) optionalTime {
 	tableName := _optionalTime.optionalTimeDo.TableName()
 	_optionalTime.ALL = field.NewField(tableName, "*")
 	_optionalTime.ID = field.NewUint(tableName, "id")
+	_optionalTime.CreatedAt = field.NewTime(tableName, "created_at")
+	_optionalTime.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_optionalTime.DeletedAt = field.NewField(tableName, "deleted_at")
 	_optionalTime.TheDate = field.NewTime(tableName, "the_date")
 	_optionalTime.TheTime = field.NewTime(tableName, "the_time")
 	_optionalTime.TheLocation = field.NewString(tableName, "the_location")
-	_optionalTime.GroupID = field.NewInt32(tableName, "group_id")
+	_optionalTime.Group = field.NewString(tableName, "group")
 	_optionalTime.IntentRank = field.NewInt16(tableName, "intent_rank")
 
 	_optionalTime.fillFieldMap()
@@ -42,10 +45,13 @@ type optionalTime struct {
 
 	ALL         field.Field
 	ID          field.Uint
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
 	TheDate     field.Time
 	TheTime     field.Time
 	TheLocation field.String
-	GroupID     field.Int32
+	Group       field.String
 	IntentRank  field.Int16
 
 	fieldMap map[string]field.Expr
@@ -64,10 +70,13 @@ func (o optionalTime) As(alias string) *optionalTime {
 func (o *optionalTime) updateTableName(table string) *optionalTime {
 	o.ALL = field.NewField(table, "*")
 	o.ID = field.NewUint(table, "id")
+	o.CreatedAt = field.NewTime(table, "created_at")
+	o.UpdatedAt = field.NewTime(table, "updated_at")
+	o.DeletedAt = field.NewField(table, "deleted_at")
 	o.TheDate = field.NewTime(table, "the_date")
 	o.TheTime = field.NewTime(table, "the_time")
 	o.TheLocation = field.NewString(table, "the_location")
-	o.GroupID = field.NewInt32(table, "group_id")
+	o.Group = field.NewString(table, "group")
 	o.IntentRank = field.NewInt16(table, "intent_rank")
 
 	o.fillFieldMap()
@@ -93,12 +102,15 @@ func (o *optionalTime) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *optionalTime) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 6)
+	o.fieldMap = make(map[string]field.Expr, 9)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["created_at"] = o.CreatedAt
+	o.fieldMap["updated_at"] = o.UpdatedAt
+	o.fieldMap["deleted_at"] = o.DeletedAt
 	o.fieldMap["the_date"] = o.TheDate
 	o.fieldMap["the_time"] = o.TheTime
 	o.fieldMap["the_location"] = o.TheLocation
-	o.fieldMap["group_id"] = o.GroupID
+	o.fieldMap["group"] = o.Group
 	o.fieldMap["intent_rank"] = o.IntentRank
 }
 

@@ -16,7 +16,6 @@ var (
 	Admin        *admin
 	Admit        *admit
 	Applicant    *applicant
-	Group        *group
 	Intent       *intent
 	OptionalTime *optionalTime
 	Question     *question
@@ -31,7 +30,6 @@ func SetDefault(db *gorm.DB) {
 	Admin = &Q.Admin
 	Admit = &Q.Admit
 	Applicant = &Q.Applicant
-	Group = &Q.Group
 	Intent = &Q.Intent
 	OptionalTime = &Q.OptionalTime
 	Question = &Q.Question
@@ -47,7 +45,6 @@ func Use(db *gorm.DB) *Query {
 		Admin:        newAdmin(db),
 		Admit:        newAdmit(db),
 		Applicant:    newApplicant(db),
-		Group:        newGroup(db),
 		Intent:       newIntent(db),
 		OptionalTime: newOptionalTime(db),
 		Question:     newQuestion(db),
@@ -64,7 +61,6 @@ type Query struct {
 	Admin        admin
 	Admit        admit
 	Applicant    applicant
-	Group        group
 	Intent       intent
 	OptionalTime optionalTime
 	Question     question
@@ -82,7 +78,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Admin:        q.Admin.clone(db),
 		Admit:        q.Admit.clone(db),
 		Applicant:    q.Applicant.clone(db),
-		Group:        q.Group.clone(db),
 		Intent:       q.Intent.clone(db),
 		OptionalTime: q.OptionalTime.clone(db),
 		Question:     q.Question.clone(db),
@@ -97,7 +92,6 @@ type queryCtx struct {
 	Admin        adminDo
 	Admit        admitDo
 	Applicant    applicantDo
-	Group        groupDo
 	Intent       intentDo
 	OptionalTime optionalTimeDo
 	Question     questionDo
@@ -112,7 +106,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Admin:        *q.Admin.WithContext(ctx),
 		Admit:        *q.Admit.WithContext(ctx),
 		Applicant:    *q.Applicant.WithContext(ctx),
-		Group:        *q.Group.WithContext(ctx),
 		Intent:       *q.Intent.WithContext(ctx),
 		OptionalTime: *q.OptionalTime.WithContext(ctx),
 		Question:     *q.Question.WithContext(ctx),

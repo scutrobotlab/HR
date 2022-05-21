@@ -25,10 +25,12 @@ func newQuestion(db *gorm.DB) question {
 
 	tableName := _question.questionDo.TableName()
 	_question.ALL = field.NewField(tableName, "*")
-	_question.ID = field.NewInt32(tableName, "id")
+	_question.ID = field.NewUint(tableName, "id")
+	_question.CreatedAt = field.NewTime(tableName, "created_at")
+	_question.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_question.DeletedAt = field.NewField(tableName, "deleted_at")
 	_question.TheQuestion = field.NewString(tableName, "the_question")
-	_question.GroupID = field.NewInt32(tableName, "group_id")
+	_question.Group = field.NewString(tableName, "group")
 
 	_question.fillFieldMap()
 
@@ -39,10 +41,12 @@ type question struct {
 	questionDo questionDo
 
 	ALL         field.Field
-	ID          field.Int32
+	ID          field.Uint
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
 	DeletedAt   field.Field
 	TheQuestion field.String
-	GroupID     field.Int32
+	Group       field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -59,10 +63,12 @@ func (q question) As(alias string) *question {
 
 func (q *question) updateTableName(table string) *question {
 	q.ALL = field.NewField(table, "*")
-	q.ID = field.NewInt32(table, "id")
+	q.ID = field.NewUint(table, "id")
+	q.CreatedAt = field.NewTime(table, "created_at")
+	q.UpdatedAt = field.NewTime(table, "updated_at")
 	q.DeletedAt = field.NewField(table, "deleted_at")
 	q.TheQuestion = field.NewString(table, "the_question")
-	q.GroupID = field.NewInt32(table, "group_id")
+	q.Group = field.NewString(table, "group")
 
 	q.fillFieldMap()
 
@@ -85,11 +91,13 @@ func (q *question) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (q *question) fillFieldMap() {
-	q.fieldMap = make(map[string]field.Expr, 4)
+	q.fieldMap = make(map[string]field.Expr, 6)
 	q.fieldMap["id"] = q.ID
+	q.fieldMap["created_at"] = q.CreatedAt
+	q.fieldMap["updated_at"] = q.UpdatedAt
 	q.fieldMap["deleted_at"] = q.DeletedAt
 	q.fieldMap["the_question"] = q.TheQuestion
-	q.fieldMap["group_id"] = q.GroupID
+	q.fieldMap["group"] = q.Group
 }
 
 func (q question) clone(db *gorm.DB) question {

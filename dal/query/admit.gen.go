@@ -25,10 +25,47 @@ func newAdmit(db *gorm.DB) admit {
 
 	tableName := _admit.admitDo.TableName()
 	_admit.ALL = field.NewField(tableName, "*")
-	_admit.ApplicantID = field.NewInt32(tableName, "applicant_id")
-	_admit.GroupID = field.NewInt32(tableName, "group_id")
-	_admit.AdminID = field.NewInt32(tableName, "admin_id")
+	_admit.ApplicantID = field.NewUint(tableName, "applicant_id")
+	_admit.Group = field.NewString(tableName, "group")
+	_admit.AdminID = field.NewUint(tableName, "admin_id")
 	_admit.CreatedAt = field.NewTime(tableName, "created_at")
+	_admit.Applicant = admitApplicant{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Applicant", "model.Applicant"),
+		Intents: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			OptionalTime struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Intents", "model.Intent"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.Applicant", "model.Applicant"),
+			},
+			OptionalTime: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
+			},
+		},
+	}
+
+	_admit.Admin = admitAdmin{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Admin", "model.Admin"),
+		Standard: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Admin.Standard", "model.Standard"),
+		},
+	}
 
 	_admit.fillFieldMap()
 
@@ -39,10 +76,13 @@ type admit struct {
 	admitDo admitDo
 
 	ALL         field.Field
-	ApplicantID field.Int32
-	GroupID     field.Int32
-	AdminID     field.Int32
+	ApplicantID field.Uint
+	Group       field.String
+	AdminID     field.Uint
 	CreatedAt   field.Time
+	Applicant   admitApplicant
+
+	Admin admitAdmin
 
 	fieldMap map[string]field.Expr
 }
@@ -59,9 +99,9 @@ func (a admit) As(alias string) *admit {
 
 func (a *admit) updateTableName(table string) *admit {
 	a.ALL = field.NewField(table, "*")
-	a.ApplicantID = field.NewInt32(table, "applicant_id")
-	a.GroupID = field.NewInt32(table, "group_id")
-	a.AdminID = field.NewInt32(table, "admin_id")
+	a.ApplicantID = field.NewUint(table, "applicant_id")
+	a.Group = field.NewString(table, "group")
+	a.AdminID = field.NewUint(table, "admin_id")
 	a.CreatedAt = field.NewTime(table, "created_at")
 
 	a.fillFieldMap()
@@ -85,16 +125,163 @@ func (a *admit) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *admit) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 4)
+	a.fieldMap = make(map[string]field.Expr, 6)
 	a.fieldMap["applicant_id"] = a.ApplicantID
-	a.fieldMap["group_id"] = a.GroupID
+	a.fieldMap["group"] = a.Group
 	a.fieldMap["admin_id"] = a.AdminID
 	a.fieldMap["created_at"] = a.CreatedAt
+
 }
 
 func (a admit) clone(db *gorm.DB) admit {
 	a.admitDo.ReplaceDB(db)
 	return a
+}
+
+type admitApplicant struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Intents struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		OptionalTime struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a admitApplicant) Where(conds ...field.Expr) *admitApplicant {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a admitApplicant) WithContext(ctx context.Context) *admitApplicant {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a admitApplicant) Model(m *model.Admit) *admitApplicantTx {
+	return &admitApplicantTx{a.db.Model(m).Association(a.Name())}
+}
+
+type admitApplicantTx struct{ tx *gorm.Association }
+
+func (a admitApplicantTx) Find() (result *model.Applicant, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a admitApplicantTx) Append(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a admitApplicantTx) Replace(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a admitApplicantTx) Delete(values ...*model.Applicant) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a admitApplicantTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a admitApplicantTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type admitAdmin struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	Standard struct {
+		field.RelationField
+	}
+}
+
+func (a admitAdmin) Where(conds ...field.Expr) *admitAdmin {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a admitAdmin) WithContext(ctx context.Context) *admitAdmin {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a admitAdmin) Model(m *model.Admit) *admitAdminTx {
+	return &admitAdminTx{a.db.Model(m).Association(a.Name())}
+}
+
+type admitAdminTx struct{ tx *gorm.Association }
+
+func (a admitAdminTx) Find() (result *model.Admin, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a admitAdminTx) Append(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a admitAdminTx) Replace(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a admitAdminTx) Delete(values ...*model.Admin) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a admitAdminTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a admitAdminTx) Count() int64 {
+	return a.tx.Count()
 }
 
 type admitDo struct{ gen.DO }

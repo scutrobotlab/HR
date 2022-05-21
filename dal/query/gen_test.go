@@ -80,7 +80,6 @@ func Test_WithContext(t *testing.T) {
 		qCtx.Admin.UnderlyingDB().Statement.Context,
 		qCtx.Admit.UnderlyingDB().Statement.Context,
 		qCtx.Applicant.UnderlyingDB().Statement.Context,
-		qCtx.Group.UnderlyingDB().Statement.Context,
 		qCtx.Intent.UnderlyingDB().Statement.Context,
 		qCtx.OptionalTime.UnderlyingDB().Statement.Context,
 		qCtx.Question.UnderlyingDB().Statement.Context,
