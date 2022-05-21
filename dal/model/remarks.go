@@ -4,8 +4,10 @@ const TableNameRemark = "remarks"
 
 // Remark mapped from table <remarks>
 type Remark struct {
-	AdminID     int32  `gorm:"primaryKey"`
-	ApplicantID int32  `gorm:"primaryKey"`
+	AdminID     uint `gorm:"primaryKey"`
+	Admin       Admin
+	ApplicantID uint `gorm:"primaryKey"`
+	Applicant   Applicant
 	TheRemark   string `gorm:"type:text"`
 }
 

@@ -8,12 +8,15 @@ const TableNameScore = "scores"
 
 // Score mapped from table <scores>
 type Score struct {
-	AdminID           int32 `gorm:"primaryKey"`
-	ApplicantID       int32 `gorm:"primaryKey"`
-	GroupID           int32 `gorm:"primaryKey"`
+	AdminID           uint `gorm:"primaryKey"`
+	Admin             Admin
+	ApplicantID       uint `gorm:"primaryKey"`
+	Applicant         Applicant
+	Group             string `gorm:"type:character(16)"`
 	Score             float64
-	StandardID        *int32
-	EvaluationDetails *string `gorm:"type:jsonb"`
+	StandardID        uint
+	Standard          Standard
+	EvaluationDetails string `gorm:"type:jsonb"`
 	UpdatedAt         time.Time
 }
 

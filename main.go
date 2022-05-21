@@ -7,6 +7,7 @@ import (
 	"github.com/scutrobotlab/HR/biz"
 	"github.com/scutrobotlab/HR/conf"
 	"github.com/scutrobotlab/HR/dal"
+	"github.com/scutrobotlab/HR/dal/query"
 )
 
 func init() {
@@ -18,5 +19,6 @@ func main() {
 	fmt.Println("hello world")
 	defer fmt.Println("bye~")
 
+	query.SetDefault(dal.DB)
 	biz.Query(context.Background())
 }

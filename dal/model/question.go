@@ -6,10 +6,9 @@ const TableNameQuestion = "question"
 
 // Question mapped from table <question>
 type Question struct {
-	ID          int32          `gorm:"primaryKey"`
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	TheQuestion *string        `gorm:"type:text"`
-	GroupID     int32
+	gorm.Model
+	TheQuestion string `gorm:"type:text"`
+	Group       string `gorm:"type:character(16)"`
 }
 
 // TableName Question's table name

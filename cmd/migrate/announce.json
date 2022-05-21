@@ -1,0 +1,8 @@
+{
+    "HaventAppliedForm": "您还没有提交报名表。",
+    "HaventSelectedTime": "{{applicant.name}}同学您好，感谢您报名华工机器人实验室{{#each times}}{{this.group}}组{{#unless @last}}、{{/unless}}{{/each}}。您还没有选择报名面试时间，请尽快进入系统选择。",
+    "HaventInterview": "{{applicant.name}}同学您好，感谢您报名华工机器人实验室。您报名的{{#each times}}{{this.group}}组的面试时间为{{this.date}} {{this.time}}，面试地点在{{this.location}}；{{/each}}我们期待您的到来！",
+    "Interviewed": "{{applicant.name}}同学您好，您已完成{{#each times}}{{this.group}}组{{#unless @last}}、{{/unless}}{{/each}}面试。面试结果尚未公布，请静候通知。",
+    "Admitted": "恭喜你！{{applicant.name}}同学，您通过了{{admitted}}组面试！",
+    "Failed": "很遗憾，{{applicant.name}}同学，您没有通过面试。"
+}

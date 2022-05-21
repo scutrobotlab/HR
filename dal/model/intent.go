@@ -1,13 +1,18 @@
 package model
 
+import "gorm.io/gorm"
+
 const TableNameIntent = "intent"
 
 // Intent mapped from table <intent>
 type Intent struct {
-	ID          int32 `gorm:"primaryKey"`
-	ApplicantID int32
-	GroupID     int32
-	IntentRank  *int16 // nil 为平行志愿
+	gorm.Model
+	ApplicantID    uint
+	Applicant      Applicant
+	Group          string `gorm:"type:character(16)"`
+	IntentRank     *int16 // nil 为平行志愿
+	OptionalTimeID uint
+	OptionalTime   OptionalTime
 }
 
 // TableName Intent's table name
