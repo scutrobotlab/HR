@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/scutrobotlab/HR/biz"
 	"github.com/scutrobotlab/HR/conf"
@@ -14,6 +15,7 @@ func init() {
 }
 
 func main() {
+	log.SetFlags(log.Lshortfile)
 	// start your project here
 	fmt.Println("hello world")
 	defer fmt.Println("bye~")

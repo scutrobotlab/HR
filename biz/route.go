@@ -18,49 +18,40 @@ func init() {
 func Run() {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
+	sessionNames := []string{"admin", "applicant"}
+	r.Use(sessions.SessionsMany(sessionNames, store))
 
 	public := r.Group("/api/public") // 公开接口
 	{
-		public.GET("/time/:group")           // 面试时间
-		public.GET("/exam/:group")           // 面试题库
-		public.GET("/:key", ctrl.GetSetting) // 报名表信息
+		public.GET("/time/:group", ctrl.GetTime) // 面试时间
+		public.GET("/exam/:group", ctrl.GetExam) // 面试题库
+		public.GET("/:key", ctrl.GetSetting)     // 报名表信息
 	}
 
-	r.POST("/api/applicant/login/:token")  // 报名者登录
-	applicant := r.Group("/api/applicant") // 报名者登录后接口
+	r.POST("/api/applicant/login/:token", mid.ApplicantLogin) // 报名者登录
+	applicant := r.Group("/api/applicant")                    // 报名者登录后接口
 	applicant.Use(mid.ApplicantAuth())
 	{
-		applicant.GET("/wechat") // 我的微信信息
-		applicant.GET("/status") // 我的状态信息（步骤+面试时间+面试结果）
-		applicant.GET("/exam")   // 我的题库回答
+		applicant.GET("/info", ctrl.ApplicantInfo) // 我的微信信息
+		applicant.GET("/status")                   // 我的状态信息（步骤+面试时间+面试结果）
+		applicant.GET("/exam/:group")              // 我的题库回答
 
 		applicant.POST("/apply") // 提交表单
 		applicant.POST("/exam")  // 提交题库回答
 		applicant.POST("/time")  // 选择面试时间
 	}
 
-	r.POST("/api/admin/login/:token") // 面试官登录
-	admin := r.Group("/api/admin")    // 面试官登录后接口
+	r.POST("/api/admin/login/:code", mid.AdminLogin) // 面试官登录
+	admin := r.Group("/api/admin")                   // 面试官登录后接口
+	admin.Use(mid.AdminAuth())
 	{
-		admin.GET("/info")    // 我的信息
-		admin.POST("/logout") // 登出
+		admin.GET("/info", ctrl.AdminInfo) // 我的信息
+		admin.POST("/logout")              // 登出
 
-		admin.PUT("/standard") // 设置默认评价标准
+		admin.PUT("/standard", ctrl.AdminSetStandard) // 设置默认评价标准
 
-		form := admin.Group("/form") // 报名表管理
-		{
-			form.POST("/")      // 新增表项
-			form.PUT("/:id")    // 修改表项
-			form.DELETE("/:id") // 删除表项
-		}
-		group := admin.Group("/group") // 组管理
-		{
-			group.POST("/")      // 新增组
-			group.PUT("/:id")    // 修改组
-			group.DELETE("/:id") // 删除组
-		}
-		aa := admin.Group("/applicant") // 面试者管理
+		admin.PUT("/setting/:key", ctrl.UpdateSetting) // 修改设置
+		aa := admin.Group("/applicant")                // 面试者管理
 		{
 			aa.GET("/:id")    // 获取面试者信息，包括分数、排名和状态
 			aa.PUT("/admit")  // 录取/取消录取

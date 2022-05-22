@@ -26,9 +26,6 @@ func newAdmin(db *gorm.DB) admin {
 	tableName := _admin.adminDo.TableName()
 	_admin.ALL = field.NewField(tableName, "*")
 	_admin.ID = field.NewUint(tableName, "id")
-	_admin.CreatedAt = field.NewTime(tableName, "created_at")
-	_admin.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_admin.DeletedAt = field.NewField(tableName, "deleted_at")
 	_admin.Name = field.NewString(tableName, "name")
 	_admin.StandardID = field.NewUint(tableName, "standard_id")
 	_admin.Standard = adminStandard{
@@ -47,9 +44,6 @@ type admin struct {
 
 	ALL        field.Field
 	ID         field.Uint
-	CreatedAt  field.Time
-	UpdatedAt  field.Time
-	DeletedAt  field.Field
 	Name       field.String
 	StandardID field.Uint
 	Standard   adminStandard
@@ -70,9 +64,6 @@ func (a admin) As(alias string) *admin {
 func (a *admin) updateTableName(table string) *admin {
 	a.ALL = field.NewField(table, "*")
 	a.ID = field.NewUint(table, "id")
-	a.CreatedAt = field.NewTime(table, "created_at")
-	a.UpdatedAt = field.NewTime(table, "updated_at")
-	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.Name = field.NewString(table, "name")
 	a.StandardID = field.NewUint(table, "standard_id")
 
@@ -97,11 +88,8 @@ func (a *admin) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *admin) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 7)
+	a.fieldMap = make(map[string]field.Expr, 4)
 	a.fieldMap["id"] = a.ID
-	a.fieldMap["created_at"] = a.CreatedAt
-	a.fieldMap["updated_at"] = a.UpdatedAt
-	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["standard_id"] = a.StandardID
 
