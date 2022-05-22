@@ -6,7 +6,7 @@ const TableNameIntent = "intent"
 
 // Intent mapped from table <intent>
 type Intent struct {
-	gorm.Model
+	gorm.Model     `swaggerignore:"true"`
 	ApplicantID    uint
 	Applicant      Applicant
 	Group          string `gorm:"type:character(16)"`

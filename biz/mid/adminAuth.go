@@ -39,14 +39,14 @@ func AdminAuth() gin.HandlerFunc {
 		access_token := session.Get("access_token")
 		if access_token == nil {
 			log.Println("access_token unfound")
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 		token := fmt.Sprint(access_token)
 		admin, err := getAdmin(token)
 		if err != nil {
 			log.Println("get admin err: ", err.Error())
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 		c.Set("admin", admin)
@@ -55,7 +55,13 @@ func AdminAuth() gin.HandlerFunc {
 	}
 }
 
-// 管理员登录
+// @Summary 管理员登录
+// @Description 管理员登录
+// @Tag admin
+// @Router /api/admin/login/{code} [POST]
+// @Param        code	path	string	true	"oauth2 code"
+// @Success      200	{object}	Admin
+// @Failure      401,404
 func AdminLogin(c *gin.Context) {
 	session := sessions.DefaultMany(c, "admin")
 	code, ok := c.Params.Get("code")

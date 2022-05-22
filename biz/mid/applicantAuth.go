@@ -22,7 +22,7 @@ func ApplicantAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.DefaultMany(c, "applicant")
 		if applicant := session.Get("applicant"); applicant == nil {
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		} else {
 			c.Set("applicant", applicant)
@@ -32,7 +32,12 @@ func ApplicantAuth() gin.HandlerFunc {
 	}
 }
 
-// 面试者登录
+// @Summary 面试者登录
+// @Description 面试者登录
+// @Router /api/applicant/login/{token} [POST]
+// @Param        token	path	string	true	"oauth2 token"
+// @Success      200	{object}	Applicant
+// @Failure      401,404
 func ApplicantLogin(c *gin.Context) {
 	session := sessions.DefaultMany(c, "applicant")
 	var applicant Applicant

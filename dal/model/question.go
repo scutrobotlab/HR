@@ -6,7 +6,7 @@ const TableNameQuestion = "question"
 
 // Question mapped from table <question>
 type Question struct {
-	gorm.Model
+	gorm.Model  `swaggerignore:"true"`
 	TheQuestion string `gorm:"type:text"`
 	Group       string `gorm:"type:character(16)"`
 }

@@ -22,3 +22,9 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+# backend
+
+### Gen doc
+
+swag init --parseDependency --parseInternal

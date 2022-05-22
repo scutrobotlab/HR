@@ -10,7 +10,7 @@ const TableNameOptionalTime = "optional_time"
 
 // OptionalTime mapped from table <optional_time>
 type OptionalTime struct {
-	gorm.Model
+	gorm.Model  `swaggerignore:"true"`
 	TheDate     time.Time `gorm:"type:date"`
 	TheTime     time.Time `gorm:"type:time"`
 	TheLocation string
