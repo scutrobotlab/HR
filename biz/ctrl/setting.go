@@ -1,10 +1,12 @@
 package ctrl
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 type timeframe struct {
@@ -44,6 +46,51 @@ type announce struct {
 	Failed             string
 }
 
+// @Summary 设置报名表
+// @Description 修改报名表设置
+// @Tags admin, setting
+// @Router /api/setting/form [PUT]
+// @Param        form	body	form	true	"报名表"
+// @Success      200
+// @Failure      400,401,500
+func updateForm(c *gin.Context) ([]byte, error) {
+	var f form
+	if err := c.BindJSON(&f); err != nil {
+		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+	}
+	return json.Marshal(f)
+}
+
+// @Summary 设置公告
+// @Description 修改公告设置
+// @Tags admin, setting
+// @Router /api/setting/announce [PUT]
+// @Param        announce	body	announce	true	"公告"
+// @Success      200
+// @Failure      400,401,500
+func updateAnnounce(c *gin.Context) ([]byte, error) {
+	var a announce
+	if err := c.BindJSON(&a); err != nil {
+		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+	}
+	return json.Marshal(a)
+}
+
+// @Summary 设置时间节点
+// @Description 修改时间节点设置
+// @Tags admin, setting
+// @Router /api/setting/time-frame [PUT]
+// @Param        timeframe	body	timeframe	true	"时间节点"
+// @Success      200
+// @Failure      400,401,500
+func UpdateTimeFrame(c *gin.Context) ([]byte, error) {
+	var t timeframe
+	if err := c.BindJSON(&t); err != nil {
+		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+	}
+	return json.Marshal(&t)
+}
+
 func UpdateSetting(c *gin.Context) {
 	key, ok := c.Params.Get("key")
 	if !ok {
@@ -52,38 +99,28 @@ func UpdateSetting(c *gin.Context) {
 	}
 	s := q.Setting
 	do := s.WithContext(ctx).Where(s.Key.Eq(key))
-
-	var err error
+	var (
+		v   []byte
+		err error
+	)
 	switch key {
 	case "form":
-		var f form
-		if err := c.BindJSON(&f); err != nil {
-			log.Println(err.Error())
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		_, err = do.UpdateColumn(s.Value, f)
+		v, err = updateForm(c)
 	case "announce":
-		var a announce
-		if err := c.BindJSON(&a); err != nil {
-			log.Println(err.Error())
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		_, err = do.UpdateColumn(s.Value, a)
+		v, err = updateAnnounce(c)
 	case "time-frame":
-		var t timeframe
-		if err := c.BindJSON(&t); err != nil {
-			log.Println(err.Error())
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		_, err = do.UpdateColumn(s.Value, t)
+		v, err = UpdateTimeFrame(c)
+	}
+	if errors.Is(err, ErrBadRequest) {
+		log.Println(err.Error())
+		c.Status(http.StatusBadRequest)
+		return
 	}
 	if err != nil {
 		log.Println(err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+	do.Update(s.Value, v)
 	c.Status(http.StatusNoContent)
 }

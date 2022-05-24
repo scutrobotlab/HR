@@ -71,6 +71,152 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/admin/public/{group}": {
+            "get": {
+                "description": "获取特定组别的面试时间",
+                "tags": [
+                    "public"
+                ],
+                "summary": "获取面试时间",
+                "parameters": [
+                    {
+                        "enum": [
+                            "机械",
+                            "电控",
+                            "视觉"
+                        ],
+                        "type": "string",
+                        "description": "组别",
+                        "name": "group",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.OptionalTime"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/public/{key}": {
+            "get": {
+                "description": "可获取\"form\", \"announce\", \"time-frame\"",
+                "tags": [
+                    "public",
+                    "setting"
+                ],
+                "summary": "获取设置",
+                "parameters": [
+                    {
+                        "enum": [
+                            "form",
+                            "announce",
+                            "time-frame"
+                        ],
+                        "type": "string",
+                        "description": "获取设置的键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/remark/{id}": {
+            "get": {
+                "description": "获取我对特定面试者的评价",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "获取评价",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "面试者id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Remark"
+                        }
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "description": "设置我对特定面试者的评价",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "设置评价",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "面试者id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "评价",
+                        "name": "remark",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Remark"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/standard": {
             "put": {
                 "description": "设置默认评价标准",
@@ -95,6 +241,29 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/applicant/info": {
+            "get": {
+                "description": "面试者获取自己的微信信息",
+                "tags": [
+                    "applicant"
+                ],
+                "summary": "面试者微信信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mid.Applicant"
+                        }
                     },
                     "401": {
                         "description": ""
@@ -137,32 +306,103 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/public/{key}": {
-            "get": {
-                "description": "可获取\"form\", \"announce\", \"time-frame\"",
+        "/api/setting/announce": {
+            "put": {
+                "description": "修改公告设置",
                 "tags": [
-                    "public"
+                    "admin",
+                    "setting"
                 ],
-                "summary": "获取设置",
+                "summary": "设置公告",
                 "parameters": [
                     {
-                        "enum": [
-                            "form",
-                            "announce",
-                            "time-frame"
-                        ],
-                        "type": "string",
-                        "description": "获取设置的键",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
+                        "description": "公告",
+                        "name": "announce",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ctrl.announce"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": ""
                     },
-                    "404": {
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/setting/form": {
+            "put": {
+                "description": "修改报名表设置",
+                "tags": [
+                    "admin",
+                    "setting"
+                ],
+                "summary": "设置报名表",
+                "parameters": [
+                    {
+                        "description": "报名表",
+                        "name": "form",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ctrl.form"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/setting/time-frame": {
+            "put": {
+                "description": "修改时间节点设置",
+                "tags": [
+                    "admin",
+                    "setting"
+                ],
+                "summary": "设置时间节点",
+                "parameters": [
+                    {
+                        "description": "时间节点",
+                        "name": "timeframe",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ctrl.timeframe"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
                         "description": ""
                     },
                     "500": {
@@ -173,6 +413,99 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ctrl.announce": {
+            "type": "object",
+            "properties": {
+                "admitted": {
+                    "type": "string"
+                },
+                "failed": {
+                    "type": "string"
+                },
+                "haventAppliedForm": {
+                    "type": "string"
+                },
+                "haventInterview": {
+                    "type": "string"
+                },
+                "haventSelectedTime": {
+                    "type": "string"
+                },
+                "interviewed": {
+                    "type": "string"
+                }
+            }
+        },
+        "ctrl.field": {
+            "type": "object",
+            "required": [
+                "key",
+                "name",
+                "regexp",
+                "required",
+                "type"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "option": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regexp": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "ctrl.form": {
+            "type": "object",
+            "required": [
+                "fields",
+                "intent"
+            ],
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ctrl.field"
+                    }
+                },
+                "intent": {
+                    "$ref": "#/definitions/ctrl.intent"
+                }
+            }
+        },
+        "ctrl.intent": {
+            "type": "object",
+            "required": [
+                "max",
+                "min",
+                "parallel"
+            ],
+            "properties": {
+                "max": {
+                    "type": "integer"
+                },
+                "min": {
+                    "type": "integer"
+                },
+                "parallel": {
+                    "type": "boolean"
+                }
+            }
+        },
         "ctrl.standard": {
             "type": "object",
             "required": [
@@ -181,6 +514,33 @@ const docTemplate = `{
             "properties": {
                 "standard_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "ctrl.timeframe": {
+            "type": "object",
+            "required": [
+                "done",
+                "form-end",
+                "form-start",
+                "time-end",
+                "time-start"
+            ],
+            "properties": {
+                "done": {
+                    "type": "string"
+                },
+                "form-end": {
+                    "type": "string"
+                },
+                "form-start": {
+                    "type": "string"
+                },
+                "time-end": {
+                    "type": "string"
+                },
+                "time-start": {
+                    "type": "string"
                 }
             }
         },
@@ -229,31 +589,47 @@ const docTemplate = `{
         "model.Admin": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "standard": {
-                    "$ref": "#/definitions/model.Standard"
-                },
-                "standardID": {
+                "standard_id": {
                     "type": "integer"
                 }
             }
         },
-        "model.Standard": {
+        "model.OptionalTime": {
             "type": "object",
             "properties": {
-                "adminID": {
-                    "description": "上次修改的管理员",
-                    "type": "integer"
-                },
-                "content": {
+                "group": {
                     "type": "string"
                 },
-                "name": {
+                "intentRank": {
+                    "description": "限定面试轮次",
+                    "type": "integer"
+                },
+                "theDate": {
+                    "type": "string"
+                },
+                "theLocation": {
+                    "type": "string"
+                },
+                "theTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Question": {
+            "type": "object",
+            "properties": {
+                "group": {
+                    "type": "string"
+                },
+                "theQuestion": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Remark": {
+            "type": "object",
+            "properties": {
+                "remark": {
                     "type": "string"
                 }
             }

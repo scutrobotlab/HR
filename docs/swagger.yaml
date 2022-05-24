@@ -1,10 +1,92 @@
 definitions:
+  ctrl.announce:
+    properties:
+      admitted:
+        type: string
+      failed:
+        type: string
+      haventAppliedForm:
+        type: string
+      haventInterview:
+        type: string
+      haventSelectedTime:
+        type: string
+      interviewed:
+        type: string
+    type: object
+  ctrl.field:
+    properties:
+      key:
+        type: string
+      name:
+        type: string
+      option:
+        items:
+          type: string
+        type: array
+      regexp:
+        type: string
+      required:
+        type: boolean
+      type:
+        type: string
+    required:
+    - key
+    - name
+    - regexp
+    - required
+    - type
+    type: object
+  ctrl.form:
+    properties:
+      fields:
+        items:
+          $ref: '#/definitions/ctrl.field'
+        type: array
+      intent:
+        $ref: '#/definitions/ctrl.intent'
+    required:
+    - fields
+    - intent
+    type: object
+  ctrl.intent:
+    properties:
+      max:
+        type: integer
+      min:
+        type: integer
+      parallel:
+        type: boolean
+    required:
+    - max
+    - min
+    - parallel
+    type: object
   ctrl.standard:
     properties:
       standard_id:
         type: integer
     required:
     - standard_id
+    type: object
+  ctrl.timeframe:
+    properties:
+      done:
+        type: string
+      form-end:
+        type: string
+      form-start:
+        type: string
+      time-end:
+        type: string
+      time-start:
+        type: string
+    required:
+    - done
+    - form-end
+    - form-start
+    - time-end
+    - time-start
     type: object
   mid.Admin:
     properties:
@@ -35,23 +117,33 @@ definitions:
     type: object
   model.Admin:
     properties:
-      id:
-        type: integer
-      name:
-        type: string
-      standard:
-        $ref: '#/definitions/model.Standard'
-      standardID:
+      standard_id:
         type: integer
     type: object
-  model.Standard:
+  model.OptionalTime:
     properties:
-      adminID:
-        description: 上次修改的管理员
-        type: integer
-      content:
+      group:
         type: string
-      name:
+      intentRank:
+        description: 限定面试轮次
+        type: integer
+      theDate:
+        type: string
+      theLocation:
+        type: string
+      theTime:
+        type: string
+    type: object
+  model.Question:
+    properties:
+      group:
+        type: string
+      theQuestion:
+        type: string
+    type: object
+  model.Remark:
+    properties:
+      remark:
         type: string
     type: object
 info:
@@ -93,50 +185,32 @@ paths:
       summary: 管理员登录
       tags:
       - admin
-  /api/admin/standard:
-    put:
-      description: 设置默认评价标准
+  /api/admin/public/{group}:
+    get:
+      description: 获取特定组别的面试时间
       parameters:
-      - description: 评价标准的ID
-        in: body
-        name: Standard
-        required: true
-        schema:
-          $ref: '#/definitions/ctrl.standard'
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: ""
-        "401":
-          description: ""
-        "500":
-          description: ""
-      summary: 设置默认标准
-      tags:
-      - admin
-  /api/applicant/login/{token}:
-    post:
-      description: 面试者登录
-      parameters:
-      - description: oauth2 token
+      - description: 组别
+        enum:
+        - 机械
+        - 电控
+        - 视觉
         in: path
-        name: token
+        name: group
         required: true
         type: string
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/mid.Applicant'
-        "401":
-          description: ""
+            $ref: '#/definitions/model.OptionalTime'
         "404":
           description: ""
-      summary: 面试者登录
+        "500":
+          description: ""
+      summary: 获取面试时间
       tags:
-      - applicant
-  /api/public/{key}:
+      - public
+  /api/admin/public/{key}:
     get:
       description: 可获取"form", "announce", "time-frame"
       parameters:
@@ -159,4 +233,181 @@ paths:
       summary: 获取设置
       tags:
       - public
+      - setting
+  /api/admin/remark/{id}:
+    get:
+      description: 获取我对特定面试者的评价
+      parameters:
+      - description: 面试者id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Remark'
+        "401":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 获取评价
+      tags:
+      - admin
+    put:
+      description: 设置我对特定面试者的评价
+      parameters:
+      - description: 面试者id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 评价
+        in: body
+        name: remark
+        required: true
+        schema:
+          $ref: '#/definitions/model.Remark'
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 设置评价
+      tags:
+      - admin
+  /api/admin/standard:
+    put:
+      description: 设置默认评价标准
+      parameters:
+      - description: 评价标准的ID
+        in: body
+        name: Standard
+        required: true
+        schema:
+          $ref: '#/definitions/ctrl.standard'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 设置默认标准
+      tags:
+      - admin
+  /api/applicant/info:
+    get:
+      description: 面试者获取自己的微信信息
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mid.Applicant'
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者微信信息
+      tags:
+      - applicant
+  /api/applicant/login/{token}:
+    post:
+      description: 面试者登录
+      parameters:
+      - description: oauth2 token
+        in: path
+        name: token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mid.Applicant'
+        "401":
+          description: ""
+        "404":
+          description: ""
+      summary: 面试者登录
+      tags:
+      - applicant
+  /api/setting/announce:
+    put:
+      description: 修改公告设置
+      parameters:
+      - description: 公告
+        in: body
+        name: announce
+        required: true
+        schema:
+          $ref: '#/definitions/ctrl.announce'
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 设置公告
+      tags:
+      - admin
+      - setting
+  /api/setting/form:
+    put:
+      description: 修改报名表设置
+      parameters:
+      - description: 报名表
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/ctrl.form'
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 设置报名表
+      tags:
+      - admin
+      - setting
+  /api/setting/time-frame:
+    put:
+      description: 修改时间节点设置
+      parameters:
+      - description: 时间节点
+        in: body
+        name: timeframe
+        required: true
+        schema:
+          $ref: '#/definitions/ctrl.timeframe'
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 设置时间节点
+      tags:
+      - admin
+      - setting
 swagger: "2.0"
