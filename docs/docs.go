@@ -16,6 +16,107 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/admin/admit": {
+            "put": {
+                "description": "管理员录取/取消录取面试者到特定组别",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "录取/取消录取",
+                "parameters": [
+                    {
+                        "description": "录取",
+                        "name": "admit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Admit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "description": "管理员录取/取消录取面试者到特定组别",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "录取/取消录取",
+                "parameters": [
+                    {
+                        "description": "录取",
+                        "name": "admit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Admit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/applicant/:id": {
+            "get": {
+                "description": "管理员获取面试者信息",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "面试者信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "面试者ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Applicant"
+                        }
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/info": {
             "get": {
                 "description": "获取管理员信息",
@@ -27,7 +128,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Admin"
+                            "$ref": "#/definitions/mid.Admin"
                         }
                     },
                     "401": {
@@ -39,7 +140,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/login/{code}": {
+        "/api/admin/login/": {
             "post": {
                 "description": "管理员登录",
                 "tags": [
@@ -71,7 +172,79 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/public/{group}": {
+        "/api/admin/public/": {
+            "get": {
+                "description": "可获取\"form\", \"announce\", \"time-frame\"",
+                "tags": [
+                    "public",
+                    "setting"
+                ],
+                "summary": "获取设置",
+                "parameters": [
+                    {
+                        "enum": [
+                            "form",
+                            "announce",
+                            "time-frame"
+                        ],
+                        "type": "string",
+                        "description": "获取设置的键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/public/exam/": {
+            "get": {
+                "description": "获取特定组别的面试题库",
+                "tags": [
+                    "public"
+                ],
+                "summary": "获取面试题库",
+                "parameters": [
+                    {
+                        "enum": [
+                            "机械",
+                            "电控",
+                            "视觉"
+                        ],
+                        "type": "string",
+                        "description": "组别",
+                        "name": "group",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Question"
+                        }
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/public/time/": {
             "get": {
                 "description": "获取特定组别的面试时间",
                 "tags": [
@@ -108,33 +281,32 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/public/{key}": {
-            "get": {
-                "description": "可获取\"form\", \"announce\", \"time-frame\"",
+        "/api/admin/question": {
+            "post": {
+                "description": "管理员添加面试题目",
                 "tags": [
-                    "public",
-                    "setting"
+                    "admin"
                 ],
-                "summary": "获取设置",
+                "summary": "添加题目",
                 "parameters": [
                     {
-                        "enum": [
-                            "form",
-                            "announce",
-                            "time-frame"
-                        ],
-                        "type": "string",
-                        "description": "获取设置的键",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
+                        "description": "题目",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Question"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": ""
                     },
-                    "404": {
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
                         "description": ""
                     },
                     "500": {
@@ -143,9 +315,80 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/remark/{id}": {
+        "/api/admin/question/:id": {
+            "put": {
+                "description": "管理员修改面试题目",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "修改题目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "题目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "题目，仅question本身，其他内容将被忽略",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "description": "管理员删除面试题目",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "删除分数",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "题目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/remark/:id": {
             "get": {
-                "description": "获取我对特定面试者的评价",
+                "description": "管理员获取对特定面试者的评价",
                 "tags": [
                     "admin"
                 ],
@@ -153,23 +396,23 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "面试者id",
+                        "description": "面试者ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "$ref": "#/definitions/model.Remark"
                         }
                     },
-                    "401": {
+                    "400": {
                         "description": ""
                     },
-                    "404": {
+                    "401": {
                         "description": ""
                     },
                     "500": {
@@ -178,21 +421,21 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "设置我对特定面试者的评价",
+                "description": "管理员修改对特定面试者的评价",
                 "tags": [
                     "admin"
                 ],
-                "summary": "设置评价",
+                "summary": "修改评价",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "面试者id",
+                        "description": "面试者ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "评价",
+                        "description": "评价，仅remark本身，其他内容将被忽略",
                         "name": "remark",
                         "in": "body",
                         "required": true,
@@ -205,10 +448,79 @@ const docTemplate = `{
                     "204": {
                         "description": ""
                     },
+                    "400": {
+                        "description": ""
+                    },
                     "401": {
                         "description": ""
                     },
-                    "404": {
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/score": {
+            "delete": {
+                "description": "管理员删除面试者分数",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "删除分数",
+                "parameters": [
+                    {
+                        "description": "分数",
+                        "name": "score",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Score"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/score/:id": {
+            "get": {
+                "description": "管理员获取面试者分数",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "获取分数",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "面试者ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Score"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
                         "description": ""
                     },
                     "500": {
@@ -226,12 +538,12 @@ const docTemplate = `{
                 "summary": "设置默认标准",
                 "parameters": [
                     {
-                        "description": "评价标准的ID",
-                        "name": "Standard",
+                        "description": "仅选取评价标准的ID",
+                        "name": "admin",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ctrl.standard"
+                            "$ref": "#/definitions/model.Admin"
                         }
                     }
                 ],
@@ -274,7 +586,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/applicant/login/{token}": {
+        "/api/applicant/login/": {
             "post": {
                 "description": "面试者登录",
                 "tags": [
@@ -506,17 +818,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ctrl.standard": {
-            "type": "object",
-            "required": [
-                "standard_id"
-            ],
-            "properties": {
-                "standard_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "ctrl.timeframe": {
             "type": "object",
             "required": [
@@ -594,6 +895,67 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Admit": {
+            "type": "object",
+            "properties": {
+                "applicantID": {
+                    "type": "integer"
+                },
+                "group": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Applicant": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "form": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "boolean"
+                },
+                "intents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Intent"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Intent": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/model.Applicant"
+                },
+                "applicantID": {
+                    "type": "integer"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "intentRank": {
+                    "description": "nil 为平行志愿",
+                    "type": "integer"
+                },
+                "optionalTime": {
+                    "$ref": "#/definitions/model.OptionalTime"
+                },
+                "optionalTimeID": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.OptionalTime": {
             "type": "object",
             "properties": {
@@ -621,7 +983,7 @@ const docTemplate = `{
                 "group": {
                     "type": "string"
                 },
-                "theQuestion": {
+                "question": {
                     "type": "string"
                 }
             }
@@ -629,7 +991,36 @@ const docTemplate = `{
         "model.Remark": {
             "type": "object",
             "properties": {
-                "remark": {
+                "applicantID": {
+                    "type": "integer"
+                },
+                "theRemark": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Score": {
+            "type": "object",
+            "properties": {
+                "adminID": {
+                    "type": "integer"
+                },
+                "applicantID": {
+                    "type": "integer"
+                },
+                "evaluationDetails": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "standardID": {
+                    "type": "integer"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

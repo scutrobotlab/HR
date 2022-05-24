@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 )
 
 type timeframe struct {
@@ -56,7 +55,7 @@ type announce struct {
 func updateForm(c *gin.Context) ([]byte, error) {
 	var f form
 	if err := c.BindJSON(&f); err != nil {
-		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+		return []byte{}, err
 	}
 	return json.Marshal(f)
 }
@@ -71,7 +70,7 @@ func updateForm(c *gin.Context) ([]byte, error) {
 func updateAnnounce(c *gin.Context) ([]byte, error) {
 	var a announce
 	if err := c.BindJSON(&a); err != nil {
-		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+		return []byte{}, err
 	}
 	return json.Marshal(a)
 }
@@ -86,7 +85,7 @@ func updateAnnounce(c *gin.Context) ([]byte, error) {
 func UpdateTimeFrame(c *gin.Context) ([]byte, error) {
 	var t timeframe
 	if err := c.BindJSON(&t); err != nil {
-		return []byte{}, errors.Wrap(ErrBadRequest, err.Error())
+		return []byte{}, err
 	}
 	return json.Marshal(&t)
 }
@@ -97,8 +96,6 @@ func UpdateSetting(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	s := q.Setting
-	do := s.WithContext(ctx).Where(s.Key.Eq(key))
 	var (
 		v   []byte
 		err error
@@ -111,7 +108,7 @@ func UpdateSetting(c *gin.Context) {
 	case "time-frame":
 		v, err = UpdateTimeFrame(c)
 	}
-	if errors.Is(err, ErrBadRequest) {
+	if err != nil {
 		log.Println(err.Error())
 		c.Status(http.StatusBadRequest)
 		return
@@ -121,6 +118,13 @@ func UpdateSetting(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	do.Update(s.Value, v)
+	_, err = q.Setting.WithContext(ctx).
+		Where(q.Setting.Key.Eq(key)).
+		Update(q.Setting.Value, v)
+	if err != nil {
+		log.Println(err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
 	c.Status(http.StatusNoContent)
 }

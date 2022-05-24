@@ -8,12 +8,12 @@ const TableNameAdmit = "admit"
 
 // Admit mapped from table <admit>
 type Admit struct {
-	ApplicantID uint `gorm:"primaryKey"`
-	Applicant   Applicant
-	Group       string `gorm:"type:character(16);primaryKey"`
-	AdminID     uint
-	Admin       Admin
-	CreatedAt   time.Time
+	ApplicantID uint      `gorm:"primaryKey"`
+	Applicant   Applicant `json:"-"`
+	AdminID     uint      `swaggerignore:"true"`
+	Admin       Admin     `json:"-"`
+	Group       string    `gorm:"type:character(16);primaryKey"`
+	UpdatedAt   time.Time `swaggerignore:"true"`
 }
 
 // TableName Admit's table name

@@ -3,63 +3,52 @@ package ctrl
 import (
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/scutrobotlab/HR/biz/mid"
+	"github.com/scutrobotlab/HR/dal/model"
 )
 
 // @Summary		管理员信息
 // @Description 获取管理员信息
 // @Tags		admin
 // @Router		/api/admin/info [get]
-// @Success		200  {object}  model.Admin
+// @Success		200  {object}  mid.Admin
 // @Failure		401,500
 // @securityDefinitions.basic 管理员身份
 func AdminInfo(c *gin.Context) {
-	a, ok := c.Get("admin")
-	if !ok {
-		log.Println("admin unfound")
+	admin, ok := c.MustGet("admin").(*mid.Admin)
+	if !ok || admin == nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, a)
-}
-
-type standard struct {
-	StandardID uint `json:"standard_id" binding:"required"`
+	c.JSON(http.StatusOK, admin)
 }
 
 // @Summary 设置默认标准
 // @Description 设置默认评价标准
 // @Tags admin
 // @Router /api/admin/standard [PUT]
-// @Param        Standard	body	standard	true	"评价标准的ID"
+// @Param        admin	body	model.Admin	true	"仅选取评价标准的ID"
 // @Success      204
 // @Failure      400,401,500
 // @securityDefinitions.basic 管理员身份
 func AdminSetStandard(c *gin.Context) {
-	var std standard
+	var std model.Admin
 	if err := c.BindJSON(&std); err != nil {
 		log.Println(err.Error())
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	a, ok := c.Get("admin")
-	if !ok {
-		log.Println("admin unfound")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	admin, ok := a.(*mid.Admin)
+	admin, ok := c.MustGet("admin").(*mid.Admin)
 	if !ok {
 		log.Println("cannot convert admin")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	qa := q.Admin
-	do := qa.WithContext(ctx)
-	_, err := do.Where(qa.ID.Eq(admin.ID)).UpdateColumn(qa.StandardID, std.StandardID)
+	_, err := q.Admin.WithContext(ctx).
+		Where(q.Admin.ID.Eq(admin.ID)).
+		UpdateColumn(q.Admin.StandardID, std.StandardID)
 	if err != nil {
 		log.Println("cannot update standard")
 		c.Status(http.StatusInternalServerError)
@@ -68,26 +57,16 @@ func AdminSetStandard(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func getAdmin(c *gin.Context) (*mid.Admin, error) {
-	a, ok := c.Get("admin")
-	if !ok {
-		log.Println("admin unfound")
-		return nil, ErrInternalServer
+// 检查admin是否有group组别的权限
+func checkAdminGroup(admin *mid.Admin, group string) bool {
+	if admin == nil {
+		return false
 	}
-	admin, ok := a.(*mid.Admin)
-	if !ok {
-		log.Println("cannot convert admin")
-		return nil, ErrInternalServer
+	permit := false
+	for _, g := range admin.Groups {
+		if g.Name == group {
+			permit = true
+		}
 	}
-	return admin, nil
-}
-
-func getApplicantId(c *gin.Context) (uint, error) {
-	a := c.Param("id")
-	appid, err := strconv.ParseUint(a, 10, 32)
-	if err != nil {
-		log.Println("get applicant id: ", err.Error())
-		return 0, ErrBadRequest
-	}
-	return uint(appid), nil
+	return permit
 }

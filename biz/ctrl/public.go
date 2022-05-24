@@ -11,7 +11,7 @@ import (
 // @Summary 获取设置
 // @Description 可获取"form", "announce", "time-frame"
 // @Tags public, setting
-// @Router /api/admin/public/{key} [GET]
+// @Router /api/admin/public/ [GET]
 // @Param        key	path	string	true	"获取设置的键"	Enums(form, announce, time-frame)
 // @Success      200
 // @Failure      404,500
@@ -21,9 +21,9 @@ func GetSetting(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	s := q.Setting
-	do := s.WithContext(ctx)
-	m, err := do.Where(s.Key.Eq(key)).Take()
+	setting, err := q.Setting.WithContext(ctx).
+		Where(q.Setting.Key.Eq(key)).
+		Take()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.Status(http.StatusNotFound)
 		return
@@ -32,13 +32,13 @@ func GetSetting(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Data(http.StatusOK, gin.MIMEJSON, []byte(m.Value))
+	c.Data(http.StatusOK, gin.MIMEJSON, []byte(setting.Value))
 }
 
 // @Summary 获取面试题库
 // @Description 获取特定组别的面试题库
 // @Tags public
-// @Router /api/admin/public/exam/{group} [GET]
+// @Router /api/admin/public/exam/ [GET]
 // @Param        group	path	string	true	"组别"	Enums(机械, 电控, 视觉)
 // @Success      200  {object}  model.Question
 // @Failure      404,500
@@ -48,9 +48,9 @@ func GetExam(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	question := q.Question
-	do := question.WithContext(ctx)
-	m, err := do.Where(question.Group.Eq(group)).Take()
+	question, err := q.Question.WithContext(ctx).
+		Where(q.Question.Group.Eq(group)).
+		Take()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.Status(http.StatusNotFound)
 		return
@@ -59,13 +59,13 @@ func GetExam(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, m)
+	c.JSON(http.StatusOK, question)
 }
 
 // @Summary 获取面试时间
 // @Description 获取特定组别的面试时间
 // @Tags public
-// @Router /api/admin/public/time/{group} [GET]
+// @Router /api/admin/public/time/ [GET]
 // @Param        group	path	string	true	"组别"	Enums(机械, 电控, 视觉)
 // @Success      200  {object}  model.OptionalTime
 // @Failure      404,500
@@ -75,9 +75,9 @@ func GetTime(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	t := q.OptionalTime
-	do := t.WithContext(ctx)
-	m, err := do.Where(t.Group.Eq(group)).Take()
+	opttime, err := q.OptionalTime.WithContext(ctx).
+		Where(q.OptionalTime.Group.Eq(group)).
+		Take()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.Status(http.StatusNotFound)
 		return
@@ -86,5 +86,5 @@ func GetTime(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, m)
+	c.JSON(http.StatusOK, opttime)
 }

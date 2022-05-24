@@ -62,13 +62,6 @@ definitions:
     - min
     - parallel
     type: object
-  ctrl.standard:
-    properties:
-      standard_id:
-        type: integer
-    required:
-    - standard_id
-    type: object
   ctrl.timeframe:
     properties:
       done:
@@ -120,6 +113,46 @@ definitions:
       standard_id:
         type: integer
     type: object
+  model.Admit:
+    properties:
+      applicantID:
+        type: integer
+      group:
+        type: string
+    type: object
+  model.Applicant:
+    properties:
+      avatar:
+        type: string
+      form:
+        type: string
+      gender:
+        type: boolean
+      intents:
+        items:
+          $ref: '#/definitions/model.Intent'
+        type: array
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
+  model.Intent:
+    properties:
+      applicant:
+        $ref: '#/definitions/model.Applicant'
+      applicantID:
+        type: integer
+      group:
+        type: string
+      intentRank:
+        description: nil 为平行志愿
+        type: integer
+      optionalTime:
+        $ref: '#/definitions/model.OptionalTime'
+      optionalTimeID:
+        type: integer
+    type: object
   model.OptionalTime:
     properties:
       group:
@@ -138,17 +171,102 @@ definitions:
     properties:
       group:
         type: string
-      theQuestion:
+      question:
         type: string
     type: object
   model.Remark:
     properties:
-      remark:
+      applicantID:
+        type: integer
+      theRemark:
+        type: string
+    type: object
+  model.Score:
+    properties:
+      adminID:
+        type: integer
+      applicantID:
+        type: integer
+      evaluationDetails:
+        type: string
+      group:
+        type: string
+      score:
+        type: number
+      standardID:
+        type: integer
+      updatedAt:
         type: string
     type: object
 info:
   contact: {}
 paths:
+  /api/admin/admit:
+    delete:
+      description: 管理员录取/取消录取面试者到特定组别
+      parameters:
+      - description: 录取
+        in: body
+        name: admit
+        required: true
+        schema:
+          $ref: '#/definitions/model.Admit'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 录取/取消录取
+      tags:
+      - admin
+    put:
+      description: 管理员录取/取消录取面试者到特定组别
+      parameters:
+      - description: 录取
+        in: body
+        name: admit
+        required: true
+        schema:
+          $ref: '#/definitions/model.Admit'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 录取/取消录取
+      tags:
+      - admin
+  /api/admin/applicant/:id:
+    get:
+      description: 管理员获取面试者信息
+      parameters:
+      - description: 面试者ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Applicant'
+        "401":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者信息
+      tags:
+      - admin
   /api/admin/info:
     get:
       description: 获取管理员信息
@@ -156,7 +274,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Admin'
+            $ref: '#/definitions/mid.Admin'
         "401":
           description: ""
         "500":
@@ -164,7 +282,7 @@ paths:
       summary: 管理员信息
       tags:
       - admin
-  /api/admin/login/{code}:
+  /api/admin/login/:
     post:
       description: 管理员登录
       parameters:
@@ -185,7 +303,56 @@ paths:
       summary: 管理员登录
       tags:
       - admin
-  /api/admin/public/{group}:
+  /api/admin/public/:
+    get:
+      description: 可获取"form", "announce", "time-frame"
+      parameters:
+      - description: 获取设置的键
+        enum:
+        - form
+        - announce
+        - time-frame
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 获取设置
+      tags:
+      - public
+      - setting
+  /api/admin/public/exam/:
+    get:
+      description: 获取特定组别的面试题库
+      parameters:
+      - description: 组别
+        enum:
+        - 机械
+        - 电控
+        - 视觉
+        in: path
+        name: group
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Question'
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 获取面试题库
+      tags:
+      - public
+  /api/admin/public/time/:
     get:
       description: 获取特定组别的面试时间
       parameters:
@@ -210,47 +377,92 @@ paths:
       summary: 获取面试时间
       tags:
       - public
-  /api/admin/public/{key}:
-    get:
-      description: 可获取"form", "announce", "time-frame"
+  /api/admin/question:
+    post:
+      description: 管理员添加面试题目
       parameters:
-      - description: 获取设置的键
-        enum:
-        - form
-        - announce
-        - time-frame
-        in: path
-        name: key
+      - description: 题目
+        in: body
+        name: question
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.Question'
       responses:
-        "200":
+        "204":
           description: ""
-        "404":
+        "400":
+          description: ""
+        "401":
           description: ""
         "500":
           description: ""
-      summary: 获取设置
+      summary: 添加题目
       tags:
-      - public
-      - setting
-  /api/admin/remark/{id}:
-    get:
-      description: 获取我对特定面试者的评价
+      - admin
+  /api/admin/question/:id:
+    delete:
+      description: 管理员删除面试题目
       parameters:
-      - description: 面试者id
+      - description: 题目ID
         in: path
         name: id
         required: true
         type: integer
       responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Remark'
+        "204":
+          description: ""
+        "400":
+          description: ""
         "401":
           description: ""
-        "404":
+        "500":
+          description: ""
+      summary: 删除分数
+      tags:
+      - admin
+    put:
+      description: 管理员修改面试题目
+      parameters:
+      - description: 题目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 题目，仅question本身，其他内容将被忽略
+        in: body
+        name: question
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 修改题目
+      tags:
+      - admin
+  /api/admin/remark/:id:
+    get:
+      description: 管理员获取对特定面试者的评价
+      parameters:
+      - description: 面试者ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/model.Remark'
+        "400":
+          description: ""
+        "401":
           description: ""
         "500":
           description: ""
@@ -258,14 +470,14 @@ paths:
       tags:
       - admin
     put:
-      description: 设置我对特定面试者的评价
+      description: 管理员修改对特定面试者的评价
       parameters:
-      - description: 面试者id
+      - description: 面试者ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 评价
+      - description: 评价，仅remark本身，其他内容将被忽略
         in: body
         name: remark
         required: true
@@ -274,25 +486,70 @@ paths:
       responses:
         "204":
           description: ""
-        "401":
+        "400":
           description: ""
-        "404":
+        "401":
           description: ""
         "500":
           description: ""
-      summary: 设置评价
+      summary: 修改评价
+      tags:
+      - admin
+  /api/admin/score:
+    delete:
+      description: 管理员删除面试者分数
+      parameters:
+      - description: 分数
+        in: body
+        name: score
+        required: true
+        schema:
+          $ref: '#/definitions/model.Score'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 删除分数
+      tags:
+      - admin
+  /api/admin/score/:id:
+    get:
+      description: 管理员获取面试者分数
+      parameters:
+      - description: 面试者ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Score'
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 获取分数
       tags:
       - admin
   /api/admin/standard:
     put:
       description: 设置默认评价标准
       parameters:
-      - description: 评价标准的ID
+      - description: 仅选取评价标准的ID
         in: body
-        name: Standard
+        name: admin
         required: true
         schema:
-          $ref: '#/definitions/ctrl.standard'
+          $ref: '#/definitions/model.Admin'
       responses:
         "204":
           description: ""
@@ -320,7 +577,7 @@ paths:
       summary: 面试者微信信息
       tags:
       - applicant
-  /api/applicant/login/{token}:
+  /api/applicant/login/:
     post:
       description: 面试者登录
       parameters:

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/scutrobotlab/HR/biz/mid"
 )
 
 // @Summary		面试者微信信息
@@ -14,7 +15,7 @@ import (
 // @Failure		401,500
 // @securityDefinitions.basic 面试者身份
 func ApplicantInfo(c *gin.Context) {
-	applicant, ok := c.Get("applicant")
+	applicant, ok := c.MustGet("applicant").(*mid.Applicant)
 	if !ok {
 		c.Status(http.StatusInternalServerError)
 		return

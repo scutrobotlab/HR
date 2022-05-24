@@ -21,13 +21,18 @@ type Applicant struct {
 func ApplicantAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.DefaultMany(c, "applicant")
-		if applicant := session.Get("applicant"); applicant == nil {
+		nickname, ok1 := session.Get("applicant").(string)
+		openid, ok2 := session.Get("applicant").(string)
+		headimgurl, ok3 := session.Get("applicant").(string)
+		if !(ok1 && ok2 && ok3) {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
-		} else {
-			c.Set("applicant", applicant)
 		}
-
+		c.Set("applicant", &Applicant{
+			NickName:   nickname,
+			OpenID:     openid,
+			HeadImgUrl: headimgurl,
+		})
 		c.Next()
 	}
 }
@@ -35,7 +40,7 @@ func ApplicantAuth() gin.HandlerFunc {
 // @Summary 面试者登录
 // @Description 面试者登录
 // @Tags		applicant
-// @Router /api/applicant/login/{token} [POST]
+// @Router /api/applicant/login/ [POST]
 // @Param        token	path	string	true	"oauth2 token"
 // @Success      200	{object}	Applicant
 // @Failure      401,404

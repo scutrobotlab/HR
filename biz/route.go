@@ -62,33 +62,28 @@ func Run() {
 		admin.PUT("/standard", ctrl.AdminSetStandard) // 设置默认评价标准
 
 		admin.PUT("/setting/:key", ctrl.UpdateSetting) // 修改设置
-		aa := admin.Group("/applicant")                // 面试者管理
+
+		admin.GET("/applicant:id", ctrl.AdminGetApplicantInfo) // 获取面试者信息，包括分数、排名、状态
+		admin.PUT("/admit", ctrl.AdminAdmit)                   // 录取
+		admin.DELETE("/admit", ctrl.AdminAdmit)                // 取消录取
+		admin.GET("/remark/:id", ctrl.GetRemark)               // 获取我对特定面试者的评价
+		admin.POST("/remark/:id", ctrl.SetRemark)              // 修改我对特定面试者的评价
+		score := admin.Group("/score")                         // 我对特定面试者的评分
 		{
-			aa.GET("/:id")    // 获取面试者信息，包括分数、排名和状态
-			aa.PUT("/admit")  // 录取/取消录取
-			aa.DELETE("/:id") // 删除面试者
-		}
-		remark := admin.Group("/remark") // 我对特定面试者的评价
-		{
-			remark.GET("/:id", ctrl.GetRemark)  // 获取评价
-			remark.POST("/:id", ctrl.SetRemark) // 修改评价
-		}
-		score := admin.Group("/score") // 我对特定面试者的评分
-		{
-			score.GET("/:id")    // 获取评分
-			score.POST("/:id")   // 修改评分
-			score.DELETE("/:id") // 清除评分
+			score.GET("/:id", ctrl.GetScore)    // 获取评分
+			score.POST("/:id", ctrl.SetScore)   // 修改评分
+			score.DELETE("/:id", ctrl.SetScore) // 清除评分
 		}
 		aas := admin.Group("/applicants") // 面试者批量管理
 		{
 			aas.GET("/:group")    // 获取组别名单（用于展示）
 			aas.PUT("/name-list") // 全部名单（用于搜索）
 		}
-		exam := admin.Group("/exam") // 面试题库管理
+		question := admin.Group("/question") // 面试题库管理
 		{
-			exam.POST("/")      // 新增题目
-			exam.PUT("/:id")    // 更新题目
-			exam.DELETE("/:id") // 删除题目
+			question.POST("/")      // 新增题目
+			question.PUT("/:id")    // 更新题目
+			question.DELETE("/:id") // 删除题目
 		}
 		standard := admin.Group("/standard") // 评价标准管理
 		{

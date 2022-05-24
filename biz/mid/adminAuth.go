@@ -58,7 +58,7 @@ func AdminAuth() gin.HandlerFunc {
 // @Summary 管理员登录
 // @Description 管理员登录
 // @Tags admin
-// @Router /api/admin/login/{code} [POST]
+// @Router /api/admin/login/ [POST]
 // @Param        code	path	string	true	"oauth2 code"
 // @Success      200	{object}	Admin
 // @Failure      401,404
