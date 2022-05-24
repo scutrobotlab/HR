@@ -34,6 +34,7 @@ func ApplicantAuth() gin.HandlerFunc {
 
 // @Summary 面试者登录
 // @Description 面试者登录
+// @Tags		applicant
 // @Router /api/applicant/login/{token} [POST]
 // @Param        token	path	string	true	"oauth2 token"
 // @Success      200	{object}	Applicant

@@ -9,13 +9,12 @@ import (
 	"github.com/scutrobotlab/HR/biz/mid"
 )
 
-// @Summary 管理员信息
+// @Summary		管理员信息
 // @Description 获取管理员信息
-// @Tag admin
-// @Router /api/admin/info [get]
-// @Success      200  {object}  model.Admin
-// @Failure      401
-// @Failure      500
+// @Tags		admin
+// @Router		/api/admin/info [get]
+// @Success		200  {object}  model.Admin
+// @Failure		401,500
 // @securityDefinitions.basic 管理员身份
 func AdminInfo(c *gin.Context) {
 	a, ok := c.Get("admin")
@@ -33,7 +32,7 @@ type standard struct {
 
 // @Summary 设置默认标准
 // @Description 设置默认评价标准
-// @Tag admin
+// @Tags admin
 // @Router /api/admin/standard [PUT]
 // @Param        Standard	body	standard	true	"评价标准的ID"
 // @Success      204

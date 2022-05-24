@@ -70,6 +70,8 @@ paths:
         "500":
           description: ""
       summary: 管理员信息
+      tags:
+      - admin
   /api/admin/login/{code}:
     post:
       description: 管理员登录
@@ -89,6 +91,8 @@ paths:
         "404":
           description: ""
       summary: 管理员登录
+      tags:
+      - admin
   /api/admin/standard:
     put:
       description: 设置默认评价标准
@@ -109,6 +113,8 @@ paths:
         "500":
           description: ""
       summary: 设置默认标准
+      tags:
+      - admin
   /api/applicant/login/{token}:
     post:
       description: 面试者登录
@@ -128,6 +134,8 @@ paths:
         "404":
           description: ""
       summary: 面试者登录
+      tags:
+      - applicant
   /api/public/{key}:
     get:
       description: 可获取"form", "announce", "time-frame"
@@ -149,4 +157,6 @@ paths:
         "500":
           description: ""
       summary: 获取设置
+      tags:
+      - public
 swagger: "2.0"

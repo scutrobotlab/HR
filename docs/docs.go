@@ -19,6 +19,9 @@ const docTemplate = `{
         "/api/admin/info": {
             "get": {
                 "description": "获取管理员信息",
+                "tags": [
+                    "admin"
+                ],
                 "summary": "管理员信息",
                 "responses": {
                     "200": {
@@ -39,6 +42,9 @@ const docTemplate = `{
         "/api/admin/login/{code}": {
             "post": {
                 "description": "管理员登录",
+                "tags": [
+                    "admin"
+                ],
                 "summary": "管理员登录",
                 "parameters": [
                     {
@@ -68,6 +74,9 @@ const docTemplate = `{
         "/api/admin/standard": {
             "put": {
                 "description": "设置默认评价标准",
+                "tags": [
+                    "admin"
+                ],
                 "summary": "设置默认标准",
                 "parameters": [
                     {
@@ -99,6 +108,9 @@ const docTemplate = `{
         "/api/applicant/login/{token}": {
             "post": {
                 "description": "面试者登录",
+                "tags": [
+                    "applicant"
+                ],
                 "summary": "面试者登录",
                 "parameters": [
                     {
@@ -128,6 +140,9 @@ const docTemplate = `{
         "/api/public/{key}": {
             "get": {
                 "description": "可获取\"form\", \"announce\", \"time-frame\"",
+                "tags": [
+                    "public"
+                ],
                 "summary": "获取设置",
                 "parameters": [
                     {
