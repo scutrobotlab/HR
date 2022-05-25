@@ -8,6 +8,7 @@ import (
 	conf "github.com/scutrobotlab/HR/conf"
 	dal "github.com/scutrobotlab/HR/dal"
 	"github.com/scutrobotlab/HR/dal/model"
+	"gorm.io/gorm/clause"
 )
 
 func init() {
@@ -32,8 +33,7 @@ func main() {
 		getSetting("announce"),
 		getSetting("form"),
 	}
-	dal.DB.Create(&users)
-
+	dal.DB.Clauses(clause.OnConflict{UpdateAll: true}).Create(&users)
 }
 
 func getSetting(key string) model.Setting {

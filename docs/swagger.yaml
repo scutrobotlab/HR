@@ -1,4 +1,22 @@
 definitions:
+  ctrl.OptionalTime:
+    properties:
+      date:
+        example: "2022-05-20"
+        type: string
+      group:
+        example: 机械
+        type: string
+      intent:
+        example: 1
+        type: integer
+      location:
+        example: 五山路情缘酒店
+        type: string
+      time:
+        example: "13:14:20"
+        type: string
+    type: object
   ctrl.announce:
     properties:
       admitted:
@@ -678,28 +696,35 @@ paths:
       summary: 更新标准
       tags:
       - admin
-  /api/admin/time/{group}:
-    put:
+  /api/admin/time/:
+    post:
       consumes:
-      - multipart/form-data
+      - application/json
       description: 管理员上传面试时间csv文件
       parameters:
-      - description: 组
-        in: path
-        name: group
+      - description: 数据
+        in: body
+        name: times
         required: true
-        type: string
-      - description: csv 文件
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
+        schema:
+          items:
+            $ref: '#/definitions/ctrl.OptionalTime'
+          type: array
       responses:
-        "204":
+        "200":
           description: ""
       summary: 设置面试时间文件
+      tags:
+      - admin
+  /api/admin/time/cnt:
+    get:
+      consumes:
+      - application/json
+      description: 统计所有组别面试时间的数量
+      responses:
+        "200":
+          description: ""
+      summary: 统计面试时间
       tags:
       - admin
   /api/applicant/info:

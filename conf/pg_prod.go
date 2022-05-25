@@ -2,7 +2,7 @@
 
 package conf
 
-const Addr = "localhost:8080"
+const Addr = "hr.scutbot.cn"
 
 const Postgres = "host= port= user= password= dbname= sslmode=disable"
 

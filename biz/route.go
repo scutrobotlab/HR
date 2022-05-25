@@ -81,23 +81,24 @@ func Run() {
 		}
 		question := admin.Group("/question") // 面试题库管理
 		{
-			question.POST("/", ctrl.AddQuestion)         // 新增题目
+			question.POST("", ctrl.AddQuestion)          // 新增题目
 			question.PUT("/:id", ctrl.UpdateQuestion)    // 更新题目
 			question.DELETE("/:id", ctrl.DeleteQuestion) // 删除题目
 		}
 		standard := admin.Group("/standard") // 评价标准管理
 		{
-			standard.GET("/", ctrl.GetStandards)         // 获取所有评价标准
+			standard.GET("", ctrl.GetStandards)          // 获取所有评价标准
 			standard.GET("/:id", ctrl.GetStandard)       // 获取特定评价标准
-			standard.POST("/", ctrl.AddStandard)         // 新增评价标准
+			standard.POST("", ctrl.AddStandard)          // 新增评价标准
 			standard.PUT("/:id", ctrl.UpdateStandard)    // 更新评价标准
 			standard.DELETE("/:id", ctrl.DeleteStandard) // 删除评价标准
 		}
 		time := admin.Group("/time") // 面试时间管理
 		{
-			time.GET("/:group")                  // 导出面试时间(CSV)
-			time.PUT("/:group", ctrl.SetOptTime) // 上传面试时间(CSV)
-			time.DELETE("/:group")               // 清空该组面试时间
+			public.GET("/cnt", ctrl.CntOptTime) // 面试时间数量统计
+			time.GET("")                        // 导出面试时间(CSV)
+			time.POST("", ctrl.SetOptTime)      // 上传面试时间(CSV)
+			time.DELETE("")                     // 清空该组面试时间
 		}
 	}
 

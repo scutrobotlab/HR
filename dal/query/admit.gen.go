@@ -26,9 +26,9 @@ func newAdmit(db *gorm.DB) admit {
 	tableName := _admit.admitDo.TableName()
 	_admit.ALL = field.NewField(tableName, "*")
 	_admit.ApplicantID = field.NewUint(tableName, "applicant_id")
-	_admit.Group = field.NewString(tableName, "group")
 	_admit.AdminID = field.NewUint(tableName, "admin_id")
-	_admit.CreatedAt = field.NewTime(tableName, "created_at")
+	_admit.Group = field.NewString(tableName, "group")
+	_admit.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_admit.Applicant = admitApplicant{
 		db: db.Session(&gorm.Session{}),
 
@@ -77,9 +77,9 @@ type admit struct {
 
 	ALL         field.Field
 	ApplicantID field.Uint
-	Group       field.String
 	AdminID     field.Uint
-	CreatedAt   field.Time
+	Group       field.String
+	UpdatedAt   field.Time
 	Applicant   admitApplicant
 
 	Admin admitAdmin
@@ -100,9 +100,9 @@ func (a admit) As(alias string) *admit {
 func (a *admit) updateTableName(table string) *admit {
 	a.ALL = field.NewField(table, "*")
 	a.ApplicantID = field.NewUint(table, "applicant_id")
-	a.Group = field.NewString(table, "group")
 	a.AdminID = field.NewUint(table, "admin_id")
-	a.CreatedAt = field.NewTime(table, "created_at")
+	a.Group = field.NewString(table, "group")
+	a.UpdatedAt = field.NewTime(table, "updated_at")
 
 	a.fillFieldMap()
 
@@ -127,9 +127,9 @@ func (a *admit) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (a *admit) fillFieldMap() {
 	a.fieldMap = make(map[string]field.Expr, 6)
 	a.fieldMap["applicant_id"] = a.ApplicantID
-	a.fieldMap["group"] = a.Group
 	a.fieldMap["admin_id"] = a.AdminID
-	a.fieldMap["created_at"] = a.CreatedAt
+	a.fieldMap["group"] = a.Group
+	a.fieldMap["updated_at"] = a.UpdatedAt
 
 }
 

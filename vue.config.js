@@ -19,8 +19,7 @@ module.exports = {
 
   outputDir: "../backend/public",
 
-  indexPath:
-    process.env.NODE_ENV === "production" ? "../resources/views/index.blade.php" : "index.html",
+  indexPath: "index.html",
 
   productionSourceMap: false,
 

@@ -23,10 +23,10 @@ export default {
       return axios
         .get("/api/admin/info")
         .then((response) => {
-          state.name = response.data.admin.name;
-          state.groups = response.data.admin.groups.map((groups) => groups.name);
-          state.default_standard_id = response.data.admin.default_standard_id;
-          state.avatar = response.data.admin.avatar;
+          state.name = response.data.name;
+          state.groups = response.data.groups.map((groups) => groups.name);
+          state.default_standard_id = response.data.standard_id;
+          state.avatar = response.data.avatar;
         })
         .catch((error) => {
           if (error.response.status == 401) {

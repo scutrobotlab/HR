@@ -29,35 +29,53 @@
         <v-btn class="my-4" @click.prevent="load">导入</v-btn>
       </template>
     </vue-csv-import>
-    <v-data-table :headers="headers" :items="table" :items-per-page="5" class="elevation-1 my-5"></v-data-table>
-    <v-select label="写入组别" multiple :items="admin_groups" v-model="write_groups"></v-select>
-    <div class="mb-3">
-      <v-btn
-        class="mr-3"
-        :disabled="write_groups.length === 0 || table.length === 0"
-        :uploading="uploading"
-        @click="uploadCSV"
-      >新增</v-btn>
-      <v-dialog v-model="dialog" width="500">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="error" v-bind="attrs" v-on="on" :disabled="write_groups.length === 0">重置</v-btn>
+    <v-data-table
+      :headers="headers"
+      :items="table"
+      :items-per-page="5"
+      class="elevation-1 my-5"
+    ></v-data-table>
+    <v-btn
+      :disabled="table.length === 0"
+      :uploading="uploading"
+      @click="uploadCSV"
+      >新增</v-btn
+    >
+    <div class="my-3">
+      <v-select label="重置组别" multiple :items="admin_groups" v-model="write_groups">
+        <template v-slot:append-outer>
+          <v-dialog v-model="dialog" width="500">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="error" v-bind="attrs" v-on="on" :disabled="write_groups.length === 0">
+                重置
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                这将删除服务器上
+                <span v-for="g in write_groups" :key="g.key">{{ g }}&nbsp;</span
+                >的所有面试时间，请慎重。
+              </v-card-title>
+              <v-card-actions>
+                <v-btn color="primary" text @click="dialog = false">取消</v-btn>
+                <v-spacer></v-spacer>
+                <v-btn color="error" text @click="clear">确认重置</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </template>
-        <v-card>
-          <v-card-title>
-            这将删除服务器上
-            <span v-for="g in write_groups" :key="g.key">{{g}}&nbsp;</span>的所有面试时间，请慎重。
-          </v-card-title>
-          <v-card-actions>
-            <v-btn color="primary" text @click="dialog=false">取消</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="error" text @click="clear">确认重置</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      </v-select>
     </div>
-    <v-alert type="info" text v-if="time_statistics.length!==0">
+    <v-alert type="info" text v-if="time_statistics.length !== 0">
       各组面试时间数量：
-      <span v-for="g in groups" :key="g.key">{{g}}{{time_statistics.find(x=>x.group===g)?time_statistics.find(x=>x.group===g).count:"0"}}，</span>
+      <span v-for="g in groups" :key="g.key"
+        >{{ g
+        }}{{
+          time_statistics.find((x) => x.group === g)
+            ? time_statistics.find((x) => x.group === g).count
+            : "0"
+        }}，</span
+      >
       <br />超管可以写入所有组别，其他管理员只能写入自己所在组别。
     </v-alert>
     <ErrorAlert critical v-model="error" />
@@ -109,11 +127,8 @@ export default {
       this.errorHandler(
         axios({
           method: "post",
-          url: "/api/times/upload",
-          data: {
-            groups: this.write_groups,
-            data: this.table,
-          },
+          url: "/api/admin/time",
+          data: this.table,
         })
       ).finally(() => {
         this.uploading = false;
@@ -124,10 +139,8 @@ export default {
       this.errorHandler(
         axios({
           method: "delete",
-          url: "/api/times/clear",
-          data: {
-            groups: this.write_groups,
-          },
+          url: "/api/admin/time",
+          data: this.write_groups,
         })
       ).then(() => {
         this.updateStatistics();
@@ -138,7 +151,7 @@ export default {
       this.errorHandler(
         axios({
           method: "get",
-          url: "/api/times/statistics",
+          url: "/api/admin/time/cnt",
         })
       ).then((response) => {
         this.time_statistics = response.data.times;

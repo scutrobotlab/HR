@@ -2,8 +2,9 @@
 
 ## Project setup
 ```
-npm install
+npm ci
 ```
+Do not run `npm install`.
 
 ### Compiles and hot-reloads for development
 ```
@@ -25,6 +26,10 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # backend
 
+```
+go run .
+```
+
 ### Gen doc
 
-swag init --parseDependency --parseInternal
+swag init

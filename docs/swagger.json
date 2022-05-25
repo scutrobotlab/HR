@@ -711,13 +711,10 @@
                 }
             }
         },
-        "/api/admin/time/{group}": {
-            "put": {
+        "/api/admin/time/": {
+            "post": {
                 "description": "管理员上传面试时间csv文件",
                 "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
                     "application/json"
                 ],
                 "tags": [
@@ -726,22 +723,37 @@
                 "summary": "设置面试时间文件",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "组",
-                        "name": "group",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "csv 文件",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
+                        "description": "数据",
+                        "name": "times",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ctrl.OptionalTime"
+                            }
+                        }
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/time/cnt": {
+            "get": {
+                "description": "统计所有组别面试时间的数量",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "统计面试时间",
+                "responses": {
+                    "200": {
                         "description": ""
                     }
                 }
@@ -909,6 +921,31 @@
         }
     },
     "definitions": {
+        "ctrl.OptionalTime": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2022-05-20"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "机械"
+                },
+                "intent": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "location": {
+                    "type": "string",
+                    "example": "五山路情缘酒店"
+                },
+                "time": {
+                    "type": "string",
+                    "example": "13:14:20"
+                }
+            }
+        },
         "ctrl.announce": {
             "type": "object",
             "properties": {
