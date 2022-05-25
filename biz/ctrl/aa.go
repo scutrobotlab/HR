@@ -13,7 +13,7 @@ import (
 // @Summary		面试者信息
 // @Description 管理员获取面试者信息
 // @Tags		admin
-// @Router		/api/admin/applicant/:id [get]
+// @Router		/api/admin/applicant/{id} [GET]
 // @Param		id	path	uint	true	"面试者ID"
 // @Success		200  {object}  model.Applicant
 // @Failure		401,404,500

@@ -15,7 +15,7 @@ import (
 // @Summary		修改评价
 // @Description 管理员修改对特定面试者的评价
 // @Tags		admin
-// @Router		/api/admin/remark/:id [PUT]
+// @Router		/api/admin/remark/{id} [PUT]
 // @Param		id	path	uint	true	"面试者ID"
 // @Param		remark	body	model.Remark	true	"评价，仅remark本身，其他内容将被忽略"
 // @Success		204
@@ -50,7 +50,7 @@ func SetRemark(c *gin.Context) {
 // @Summary		获取评价
 // @Description 管理员获取对特定面试者的评价
 // @Tags		admin
-// @Router		/api/admin/remark/:id [GET]
+// @Router		/api/admin/remark/{id} [GET]
 // @Param		id	path	uint	true	"面试者ID"
 // @Success		204	{object}	model.Remark
 // @Failure		400,401,500

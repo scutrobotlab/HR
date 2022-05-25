@@ -82,7 +82,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/applicant/:id": {
+        "/api/admin/applicant/{id}": {
             "get": {
                 "description": "管理员获取面试者信息",
                 "tags": [
@@ -172,41 +172,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/public/": {
-            "get": {
-                "description": "可获取\"form\", \"announce\", \"time-frame\"",
-                "tags": [
-                    "public",
-                    "setting"
-                ],
-                "summary": "获取设置",
-                "parameters": [
-                    {
-                        "enum": [
-                            "form",
-                            "announce",
-                            "time-frame"
-                        ],
-                        "type": "string",
-                        "description": "获取设置的键",
-                        "name": "key",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/admin/public/exam/": {
             "get": {
                 "description": "获取特定组别的面试题库",
@@ -281,6 +246,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/admin/public/{key}": {
+            "get": {
+                "description": "可获取\"form\", \"announce\", \"time-frame\"",
+                "tags": [
+                    "public",
+                    "setting"
+                ],
+                "summary": "获取设置",
+                "parameters": [
+                    {
+                        "enum": [
+                            "form",
+                            "announce",
+                            "time-frame"
+                        ],
+                        "type": "string",
+                        "description": "获取设置的键",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/question": {
             "post": {
                 "description": "管理员添加面试题目",
@@ -315,7 +315,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/question/:id": {
+        "/api/admin/question/{id}": {
             "put": {
                 "description": "管理员修改面试题目",
                 "tags": [
@@ -360,7 +360,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "删除分数",
+                "summary": "删除题目",
                 "parameters": [
                     {
                         "type": "integer",
@@ -386,7 +386,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/remark/:id": {
+        "/api/admin/remark/{id}": {
             "get": {
                 "description": "管理员获取对特定面试者的评价",
                 "tags": [
@@ -494,7 +494,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/admin/score/:id": {
+        "/api/admin/score/{id}": {
             "get": {
                 "description": "管理员获取面试者分数",
                 "tags": [
@@ -530,6 +530,30 @@ const docTemplate = `{
             }
         },
         "/api/admin/standard": {
+            "get": {
+                "description": "管理员获取所有评价标准",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "所有标准",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Standard"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
             "put": {
                 "description": "设置默认评价标准",
                 "tags": [
@@ -558,6 +582,178 @@ const docTemplate = `{
                         "description": ""
                     },
                     "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "description": "管理员添加评价标准",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "添加标准",
+                "parameters": [
+                    {
+                        "description": "标准",
+                        "name": "standard",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Standard"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/standard/{id}": {
+            "get": {
+                "description": "管理员获取特定评价标准",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "单个标准",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评价标准ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Standard"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "description": "管理员更新特定评价标准",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "更新标准",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评价标准ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "标准",
+                        "name": "standard",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Standard"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "description": "管理员删除特定评价标准",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "删除标准",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评价标准ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/time/{group}": {
+            "put": {
+                "description": "管理员上传面试时间csv文件",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "设置面试时间文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "组",
+                        "name": "group",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "csv 文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
                         "description": ""
                     }
                 }
@@ -1021,6 +1217,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Standard": {
+            "type": "object",
+            "properties": {
+                "adminID": {
+                    "description": "上次修改的管理员",
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

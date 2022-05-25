@@ -15,7 +15,7 @@ type OptionalTime struct {
 	TheTime     time.Time `gorm:"type:time"`
 	TheLocation string
 	Group       string `gorm:"type:character(16)"`
-	IntentRank  *int16 // 限定面试轮次
+	IntentRank  *uint  // 限定面试轮次
 }
 
 // TableName OptionalTime's table name

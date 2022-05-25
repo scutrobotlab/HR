@@ -16,7 +16,7 @@ import (
 // @Summary		获取分数
 // @Description 管理员获取面试者分数
 // @Tags		admin
-// @Router		/api/admin/score/:id [GET]
+// @Router		/api/admin/score/{id} [GET]
 // @Param		id	path	uint	true	"面试者ID"
 // @Success		200 {object} model.Score
 // @Failure		400,401,500

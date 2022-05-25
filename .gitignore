@@ -15,3 +15,4 @@
 # vendor/
 conf/pg_dev.go
 HR
+node_modules

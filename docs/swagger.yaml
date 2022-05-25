@@ -198,6 +198,16 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.Standard:
+    properties:
+      adminID:
+        description: 上次修改的管理员
+        type: integer
+      content:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -244,7 +254,7 @@ paths:
       summary: 录取/取消录取
       tags:
       - admin
-  /api/admin/applicant/:id:
+  /api/admin/applicant/{id}:
     get:
       description: 管理员获取面试者信息
       parameters:
@@ -303,7 +313,7 @@ paths:
       summary: 管理员登录
       tags:
       - admin
-  /api/admin/public/:
+  /api/admin/public/{key}:
     get:
       description: 可获取"form", "announce", "time-frame"
       parameters:
@@ -399,7 +409,7 @@ paths:
       summary: 添加题目
       tags:
       - admin
-  /api/admin/question/:id:
+  /api/admin/question/{id}:
     delete:
       description: 管理员删除面试题目
       parameters:
@@ -417,7 +427,7 @@ paths:
           description: ""
         "500":
           description: ""
-      summary: 删除分数
+      summary: 删除题目
       tags:
       - admin
     put:
@@ -446,7 +456,7 @@ paths:
       summary: 修改题目
       tags:
       - admin
-  /api/admin/remark/:id:
+  /api/admin/remark/{id}:
     get:
       description: 管理员获取对特定面试者的评价
       parameters:
@@ -517,7 +527,7 @@ paths:
       summary: 删除分数
       tags:
       - admin
-  /api/admin/score/:id:
+  /api/admin/score/{id}:
     get:
       description: 管理员获取面试者分数
       parameters:
@@ -541,6 +551,43 @@ paths:
       tags:
       - admin
   /api/admin/standard:
+    get:
+      description: 管理员获取所有评价标准
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Standard'
+            type: array
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 所有标准
+      tags:
+      - admin
+    post:
+      description: 管理员添加评价标准
+      parameters:
+      - description: 标准
+        in: body
+        name: standard
+        required: true
+        schema:
+          $ref: '#/definitions/model.Standard'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 添加标准
+      tags:
+      - admin
     put:
       description: 设置默认评价标准
       parameters:
@@ -560,6 +607,99 @@ paths:
         "500":
           description: ""
       summary: 设置默认标准
+      tags:
+      - admin
+  /api/admin/standard/{id}:
+    delete:
+      description: 管理员删除特定评价标准
+      parameters:
+      - description: 评价标准ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 删除标准
+      tags:
+      - admin
+    get:
+      description: 管理员获取特定评价标准
+      parameters:
+      - description: 评价标准ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Standard'
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 单个标准
+      tags:
+      - admin
+    put:
+      description: 管理员更新特定评价标准
+      parameters:
+      - description: 评价标准ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 标准
+        in: body
+        name: standard
+        required: true
+        schema:
+          $ref: '#/definitions/model.Standard'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 更新标准
+      tags:
+      - admin
+  /api/admin/time/{group}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: 管理员上传面试时间csv文件
+      parameters:
+      - description: 组
+        in: path
+        name: group
+        required: true
+        type: string
+      - description: csv 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: 设置面试时间文件
       tags:
       - admin
   /api/applicant/info:

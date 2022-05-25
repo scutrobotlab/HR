@@ -12,7 +12,7 @@ import (
 // @Summary		管理员信息
 // @Description 获取管理员信息
 // @Tags		admin
-// @Router		/api/admin/info [get]
+// @Router		/api/admin/info [GET]
 // @Success		200  {object}  mid.Admin
 // @Failure		401,500
 // @securityDefinitions.basic 管理员身份

@@ -11,7 +11,7 @@ import (
 // @Summary 获取设置
 // @Description 可获取"form", "announce", "time-frame"
 // @Tags public, setting
-// @Router /api/admin/public/ [GET]
+// @Router /api/admin/public/{key} [GET]
 // @Param        key	path	string	true	"获取设置的键"	Enums(form, announce, time-frame)
 // @Success      200
 // @Failure      404,500
