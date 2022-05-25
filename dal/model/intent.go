@@ -9,7 +9,7 @@ type Intent struct {
 	gorm.Model     `swaggerignore:"true"`
 	ApplicantID    uint
 	Applicant      Applicant
-	Group          string `gorm:"type:character(16)"`
+	Group          string `gorm:"type:character varying(16)"`
 	IntentRank     *int16 // nil 为平行志愿
 	OptionalTimeID uint
 	OptionalTime   OptionalTime

@@ -4,7 +4,7 @@ const TableNameSetting = "settings"
 
 // Setting mapped from table <settings>
 type Setting struct {
-	Key   string `gorm:"type:character varying(32);primaryKey"`
+	Key   string `gorm:"type:character varying(16);primaryKey"`
 	Value string `gorm:"type:json;not null"`
 }
 

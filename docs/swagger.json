@@ -105,6 +105,111 @@
                 }
             }
         },
+        "/api/admin/exam": {
+            "post": {
+                "description": "管理员添加面试题目",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "添加题目",
+                "parameters": [
+                    {
+                        "description": "题目",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Question"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/exam/{id}": {
+            "put": {
+                "description": "管理员修改面试题目",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "修改题目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "题目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "题目，仅question本身，其他内容将被忽略",
+                        "name": "question",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "description": "管理员删除面试题目",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "删除题目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "题目ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/info": {
             "get": {
                 "description": "获取管理员信息",
@@ -225,6 +330,9 @@
                             "$ref": "#/definitions/model.OptionalTime"
                         }
                     },
+                    "204": {
+                        "description": ""
+                    },
                     "404": {
                         "description": ""
                     },
@@ -261,111 +369,6 @@
                         "description": ""
                     },
                     "404": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/admin/question": {
-            "post": {
-                "description": "管理员添加面试题目",
-                "tags": [
-                    "admin"
-                ],
-                "summary": "添加题目",
-                "parameters": [
-                    {
-                        "description": "题目",
-                        "name": "question",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Question"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "401": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/admin/question/{id}": {
-            "put": {
-                "description": "管理员修改面试题目",
-                "tags": [
-                    "admin"
-                ],
-                "summary": "修改题目",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "题目ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "题目，仅question本身，其他内容将被忽略",
-                        "name": "question",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "401": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": ""
-                    }
-                }
-            },
-            "delete": {
-                "description": "管理员删除面试题目",
-                "tags": [
-                    "admin"
-                ],
-                "summary": "删除题目",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "题目ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "401": {
                         "description": ""
                     },
                     "500": {
@@ -711,19 +714,50 @@
                 }
             }
         },
-        "/api/admin/time/": {
-            "post": {
-                "description": "管理员上传面试时间csv文件",
+        "/api/admin/time": {
+            "delete": {
+                "description": "下载给定组别的所有面试时间为csv文件",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "admin"
                 ],
-                "summary": "设置面试时间文件",
+                "summary": "下载组别面试时间csv文件",
                 "parameters": [
                     {
-                        "description": "数据",
+                        "description": "给定的组别",
+                        "name": "groups",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/admin/time/": {
+            "post": {
+                "description": "管理员设置面试时间",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "设置面试时间",
+                "parameters": [
+                    {
+                        "description": "面试时间",
                         "name": "times",
                         "in": "body",
                         "required": true,
@@ -736,7 +770,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": ""
                     }
                 }
@@ -926,23 +960,27 @@
             "properties": {
                 "date": {
                     "type": "string",
-                    "example": "2022-05-20"
+                    "example": "2022-01-02"
                 },
                 "group": {
                     "type": "string",
                     "example": "机械"
                 },
-                "intent": {
+                "location": {
+                    "type": "string",
+                    "example": "春茧体育馆"
+                },
+                "rank": {
                     "type": "integer",
                     "example": 1
                 },
-                "location": {
-                    "type": "string",
-                    "example": "五山路情缘酒店"
-                },
                 "time": {
                     "type": "string",
-                    "example": "13:14:20"
+                    "example": "15:04:05"
+                },
+                "total_cnt": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -1195,6 +1233,10 @@
                 },
                 "theTime": {
                     "type": "string"
+                },
+                "totalCount": {
+                    "description": "人数",
+                    "type": "integer"
                 }
             }
         },

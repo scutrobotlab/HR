@@ -101,7 +101,7 @@ export default {
       this.loading = true;
       this.errorHandler(
         axios
-          .get("/api/exam/group/" + this.groups[this.idx])
+          .get("/api/public/exam/" + this.groups[this.idx])
           .then((response) => (this.questions = response.data.questions))
           .finally(() => (this.loading = false))
       );

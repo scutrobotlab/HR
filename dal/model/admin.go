@@ -5,7 +5,7 @@ const TableNameAdmin = "admin"
 // Admin mapped from table <admin>
 type Admin struct {
 	ID         uint      `gorm:"primaryKey" json:"-"`
-	Name       string    `gorm:"type:character varying(32);not null" json:"-"`
+	Name       string    `gorm:"type:character varying(16);not null" json:"-"`
 	StandardID *uint     `json:"standard_id"`
 	Standard   *Standard `json:"-"`
 }

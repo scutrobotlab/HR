@@ -153,7 +153,7 @@ export default {
         initDateTime = moment(this.datetime);
       }
       window.console.log(initDateTime);
-      this.date = initDateTime.format("YYYY-MM-DD");
+      this.date = initDateTime.format("YYYY/MM/DD");
       this.time = initDateTime.format("HH:mm");
     },
     okHandler() {

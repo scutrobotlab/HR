@@ -12,7 +12,7 @@ type Score struct {
 	Admin             Admin     `json:"-"`
 	ApplicantID       uint      `gorm:"primaryKey"`
 	Applicant         Applicant `json:"-"`
-	Group             string    `gorm:"type:character(16);primaryKey"`
+	Group             string    `gorm:"type:character varying(16);primaryKey"`
 	Score             float64
 	StandardID        uint
 	Standard          Standard `json:"-"`

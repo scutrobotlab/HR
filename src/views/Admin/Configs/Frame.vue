@@ -63,15 +63,6 @@ export default {
       var configs = this.$router.options.routes.find((route) => route.path === "/admin/configs");
       return configs.children;
     },
-    name() {
-      return this.$store.state.UserInfo.name;
-    },
-    email() {
-      return this.$store.state.UserInfo.email;
-    },
-    avatarUrl() {
-      return this.$store.state.UserInfo.avatarUrl;
-    },
   },
   methods: {
     RoutePush(path) {

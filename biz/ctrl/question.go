@@ -13,7 +13,7 @@ import (
 // @Summary		添加题目
 // @Description 管理员添加面试题目
 // @Tags		admin
-// @Router		/api/admin/question [POST]
+// @Router		/api/admin/exam [POST]
 // @Param		question	body	model.Question	true	"题目"
 // @Success		204
 // @Failure		400,401,500
@@ -46,7 +46,7 @@ func AddQuestion(c *gin.Context) {
 // @Summary		修改题目
 // @Description 管理员修改面试题目
 // @Tags		admin
-// @Router		/api/admin/question/{id} [PUT]
+// @Router		/api/admin/exam/{id} [PUT]
 // @Param		id	path	uint	true	"题目ID"
 // @Param		question	body	string	true	"题目，仅question本身，其他内容将被忽略"
 // @Success		204
@@ -90,7 +90,7 @@ func UpdateQuestion(c *gin.Context) {
 // @Summary		删除题目
 // @Description 管理员删除面试题目
 // @Tags		admin
-// @Router		/api/admin/question/{id} [DELETE]
+// @Router		/api/admin/exam/{id} [DELETE]
 // @Param		id	path	uint	true	"题目ID"
 // @Success		204
 // @Failure		400,401,500

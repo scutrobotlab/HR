@@ -52,7 +52,7 @@ func GetExam(c *gin.Context) {
 		Where(q.Question.Group.Eq(group)).
 		Take()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.Status(http.StatusNotFound)
+		c.Status(http.StatusNoContent)
 		return
 	}
 	if err != nil {
@@ -68,6 +68,7 @@ func GetExam(c *gin.Context) {
 // @Router /api/admin/public/time/ [GET]
 // @Param        group	path	string	true	"组别"	Enums(机械, 电控, 视觉)
 // @Success      200  {object}  model.OptionalTime
+// @Success      204
 // @Failure      404,500
 func GetTime(c *gin.Context) {
 	group, ok := c.Params.Get("group")
@@ -79,7 +80,7 @@ func GetTime(c *gin.Context) {
 		Where(q.OptionalTime.Group.Eq(group)).
 		Take()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.Status(http.StatusNotFound)
+		c.Status(http.StatusNoContent)
 		return
 	}
 	if err != nil {

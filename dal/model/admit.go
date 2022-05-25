@@ -12,7 +12,7 @@ type Admit struct {
 	Applicant   Applicant `json:"-"`
 	AdminID     uint      `swaggerignore:"true"`
 	Admin       Admin     `json:"-"`
-	Group       string    `gorm:"type:character(16);primaryKey"`
+	Group       string    `gorm:"type:character varying(16);primaryKey"`
 	UpdatedAt   time.Time `swaggerignore:"true"`
 }
 

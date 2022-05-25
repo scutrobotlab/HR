@@ -2,20 +2,23 @@ definitions:
   ctrl.OptionalTime:
     properties:
       date:
-        example: "2022-05-20"
+        example: "2022-01-02"
         type: string
       group:
         example: 机械
         type: string
-      intent:
+      location:
+        example: 春茧体育馆
+        type: string
+      rank:
         example: 1
         type: integer
-      location:
-        example: 五山路情缘酒店
-        type: string
       time:
-        example: "13:14:20"
+        example: "15:04:05"
         type: string
+      total_cnt:
+        example: 1
+        type: integer
     type: object
   ctrl.announce:
     properties:
@@ -184,6 +187,9 @@ definitions:
         type: string
       theTime:
         type: string
+      totalCount:
+        description: 人数
+        type: integer
     type: object
   model.Question:
     properties:
@@ -295,6 +301,75 @@ paths:
       summary: 面试者信息
       tags:
       - admin
+  /api/admin/exam:
+    post:
+      description: 管理员添加面试题目
+      parameters:
+      - description: 题目
+        in: body
+        name: question
+        required: true
+        schema:
+          $ref: '#/definitions/model.Question'
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 添加题目
+      tags:
+      - admin
+  /api/admin/exam/{id}:
+    delete:
+      description: 管理员删除面试题目
+      parameters:
+      - description: 题目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 删除题目
+      tags:
+      - admin
+    put:
+      description: 管理员修改面试题目
+      parameters:
+      - description: 题目ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 题目，仅question本身，其他内容将被忽略
+        in: body
+        name: question
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 修改题目
+      tags:
+      - admin
   /api/admin/info:
     get:
       description: 获取管理员信息
@@ -398,6 +473,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.OptionalTime'
+        "204":
+          description: ""
         "404":
           description: ""
         "500":
@@ -405,75 +482,6 @@ paths:
       summary: 获取面试时间
       tags:
       - public
-  /api/admin/question:
-    post:
-      description: 管理员添加面试题目
-      parameters:
-      - description: 题目
-        in: body
-        name: question
-        required: true
-        schema:
-          $ref: '#/definitions/model.Question'
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: ""
-        "401":
-          description: ""
-        "500":
-          description: ""
-      summary: 添加题目
-      tags:
-      - admin
-  /api/admin/question/{id}:
-    delete:
-      description: 管理员删除面试题目
-      parameters:
-      - description: 题目ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: ""
-        "401":
-          description: ""
-        "500":
-          description: ""
-      summary: 删除题目
-      tags:
-      - admin
-    put:
-      description: 管理员修改面试题目
-      parameters:
-      - description: 题目ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 题目，仅question本身，其他内容将被忽略
-        in: body
-        name: question
-        required: true
-        schema:
-          type: string
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: ""
-        "401":
-          description: ""
-        "500":
-          description: ""
-      summary: 修改题目
-      tags:
-      - admin
   /api/admin/remark/{id}:
     get:
       description: 管理员获取对特定面试者的评价
@@ -696,13 +704,33 @@ paths:
       summary: 更新标准
       tags:
       - admin
+  /api/admin/time:
+    delete:
+      consumes:
+      - application/json
+      description: 下载给定组别的所有面试时间为csv文件
+      parameters:
+      - description: 给定的组别
+        in: body
+        name: groups
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      responses:
+        "200":
+          description: ""
+      summary: 下载组别面试时间csv文件
+      tags:
+      - admin
   /api/admin/time/:
     post:
       consumes:
       - application/json
-      description: 管理员上传面试时间csv文件
+      description: 管理员设置面试时间
       parameters:
-      - description: 数据
+      - description: 面试时间
         in: body
         name: times
         required: true
@@ -711,9 +739,9 @@ paths:
             $ref: '#/definitions/ctrl.OptionalTime'
           type: array
       responses:
-        "200":
+        "204":
           description: ""
-      summary: 设置面试时间文件
+      summary: 设置面试时间
       tags:
       - admin
   /api/admin/time/cnt:

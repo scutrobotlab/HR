@@ -79,11 +79,11 @@ func Run() {
 			aas.GET("/:group")    // 获取组别名单（用于展示）
 			aas.PUT("/name-list") // 全部名单（用于搜索）
 		}
-		question := admin.Group("/question") // 面试题库管理
+		exam := admin.Group("/exam") // 面试题库管理
 		{
-			question.POST("", ctrl.AddQuestion)          // 新增题目
-			question.PUT("/:id", ctrl.UpdateQuestion)    // 更新题目
-			question.DELETE("/:id", ctrl.DeleteQuestion) // 删除题目
+			exam.POST("", ctrl.AddQuestion)          // 新增题目
+			exam.PUT("/:id", ctrl.UpdateQuestion)    // 更新题目
+			exam.DELETE("/:id", ctrl.DeleteQuestion) // 删除题目
 		}
 		standard := admin.Group("/standard") // 评价标准管理
 		{
@@ -95,10 +95,10 @@ func Run() {
 		}
 		time := admin.Group("/time") // 面试时间管理
 		{
-			public.GET("/cnt", ctrl.CntOptTime) // 面试时间数量统计
-			time.GET("")                        // 导出面试时间(CSV)
-			time.POST("", ctrl.SetOptTime)      // 上传面试时间(CSV)
-			time.DELETE("")                     // 清空该组面试时间
+			time.GET("/cnt", ctrl.CntOptTime) // 面试时间数量统计
+			time.GET("")                      // 导出面试时间(CSV)
+			time.POST("", ctrl.SetOptTime)    // 上传面试时间(CSV)
+			time.DELETE("", ctrl.DelOptTime)  // 清空组别面试时间
 		}
 	}
 

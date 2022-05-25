@@ -66,7 +66,7 @@
         </template>
       </v-select>
     </div>
-    <v-alert type="info" text v-if="time_statistics.length !== 0">
+    <v-alert type="info" text v-if="time_statistics">
       各组面试时间数量：
       <span v-for="g in groups" :key="g.key"
         >{{ g
@@ -154,7 +154,7 @@ export default {
           url: "/api/admin/time/cnt",
         })
       ).then((response) => {
-        this.time_statistics = response.data.times;
+        this.time_statistics = response.data;
       });
     },
   },

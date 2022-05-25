@@ -50,7 +50,7 @@ export default {
       this.loading = true;
       var TimeFrames = this.TimeFrames;
       TimeFrames = TimeFrames.filter((tc) => tc.value);
-      TimeFrames.forEach((tc) => (tc.value = moment(tc.value).format("YYYY-MM-DD HH:mm:ss")));
+      TimeFrames.forEach((tc) => (tc.value = moment(tc.value).format("YYYY/MM/DD HH:mm:ss")));
       axios({
         method: "post",
         url: "/api/time-frame",

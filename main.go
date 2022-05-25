@@ -15,7 +15,7 @@ func init() {
 }
 
 func main() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Llongfile)
 	// start your project here
 	fmt.Println("hello world")
 	defer fmt.Println("bye~")
