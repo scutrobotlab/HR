@@ -117,6 +117,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/admin/applicants/name-list": {
+            "get": {
+                "description": "管理员获取面试者名单",
+                "tags": [
+                    "admin"
+                ],
+                "summary": "面试者名单",
+                "responses": {
+                    "200": {
+                        "description": "name list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/admin/exam": {
             "post": {
                 "description": "管理员添加面试题目",
@@ -805,6 +837,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/applicant/answer": {
+            "post": {
+                "description": "applicant submit answers",
+                "tags": [
+                    "applicant"
+                ],
+                "summary": "面试者提交问题回答",
+                "parameters": [
+                    {
+                        "description": "answers",
+                        "name": "answers",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Answer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/applicant/answer/{group}": {
+            "get": {
+                "description": "applicant get answers of a group",
+                "tags": [
+                    "applicant"
+                ],
+                "summary": "面试者获取特定组问题回答",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "group",
+                        "name": "group",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ctrl.Answer"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/applicant/info": {
             "get": {
                 "description": "面试者获取自己的微信信息",
@@ -855,6 +953,54 @@ const docTemplate = `{
                         "description": ""
                     },
                     "404": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/applicant/logout": {
+            "post": {
+                "description": "面试者退出登录",
+                "summary": "面试者登出",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/applicant/time": {
+            "post": {
+                "description": "applicant choose optional time for intent",
+                "tags": [
+                    "applicant"
+                ],
+                "summary": "面试者选择面试时间",
+                "parameters": [
+                    {
+                        "description": "包括组别、轮次、面试时间ID",
+                        "name": "time",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Intent"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "500": {
                         "description": ""
                     }
                 }
@@ -967,6 +1113,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ctrl.Answer": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "boolean"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "question_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "ctrl.OptionalTime": {
             "type": "object",
             "properties": {
@@ -983,16 +1143,16 @@ const docTemplate = `{
                     "example": "春茧体育馆"
                 },
                 "rank": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "time": {
                     "type": "string",
                     "example": "15:04:05"
                 },
                 "total_cnt": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 }
             }
         },
@@ -1093,25 +1253,25 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "done",
-                "form-end",
-                "form-start",
-                "time-end",
-                "time-start"
+                "form_end",
+                "form_start",
+                "time_end",
+                "time_start"
             ],
             "properties": {
                 "done": {
                     "type": "string"
                 },
-                "form-end": {
+                "form_end": {
                     "type": "string"
                 },
-                "form-start": {
+                "form_start": {
                     "type": "string"
                 },
-                "time-end": {
+                "time_end": {
                     "type": "string"
                 },
-                "time-start": {
+                "time_start": {
                     "type": "string"
                 }
             }
@@ -1177,14 +1337,43 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Answer": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/model.Applicant"
+                },
+                "applicantID": {
+                    "type": "integer"
+                },
+                "question": {
+                    "$ref": "#/definitions/model.Question"
+                },
+                "questionID": {
+                    "type": "integer"
+                },
+                "theAnswer": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.Applicant": {
             "type": "object",
             "properties": {
+                "answers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Answer"
+                    }
+                },
                 "avatar": {
                     "type": "string"
                 },
                 "form": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "gender": {
                     "type": "boolean"
@@ -1198,6 +1387,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "openID": {
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 }
@@ -1206,17 +1398,11 @@ const docTemplate = `{
         "model.Intent": {
             "type": "object",
             "properties": {
-                "applicant": {
-                    "$ref": "#/definitions/model.Applicant"
-                },
-                "applicantID": {
-                    "type": "integer"
-                },
                 "group": {
                     "type": "string"
                 },
                 "intentRank": {
-                    "description": "nil 为平行志愿",
+                    "description": "0 为平行志愿",
                     "type": "integer"
                 },
                 "optionalTime": {

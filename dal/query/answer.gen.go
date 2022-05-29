@@ -17,19 +17,18 @@ import (
 	"github.com/scutrobotlab/HR/dal/model"
 )
 
-func newAdmit(db *gorm.DB) admit {
-	_admit := admit{}
+func newAnswer(db *gorm.DB) answer {
+	_answer := answer{}
 
-	_admit.admitDo.UseDB(db)
-	_admit.admitDo.UseModel(&model.Admit{})
+	_answer.answerDo.UseDB(db)
+	_answer.answerDo.UseModel(&model.Answer{})
 
-	tableName := _admit.admitDo.TableName()
-	_admit.ALL = field.NewField(tableName, "*")
-	_admit.Group = field.NewString(tableName, "group")
-	_admit.ApplicantID = field.NewUint(tableName, "applicant_id")
-	_admit.AdminID = field.NewUint(tableName, "admin_id")
-	_admit.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_admit.Applicant = admitApplicant{
+	tableName := _answer.answerDo.TableName()
+	_answer.ALL = field.NewField(tableName, "*")
+	_answer.ApplicantID = field.NewUint(tableName, "applicant_id")
+	_answer.QuestionID = field.NewUint(tableName, "question_id")
+	_answer.TheAnswer = field.NewBool(tableName, "the_answer")
+	_answer.Applicant = answerApplicant{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Applicant", "model.Applicant"),
@@ -77,66 +76,59 @@ func newAdmit(db *gorm.DB) admit {
 		},
 	}
 
-	_admit.Admin = admitAdmin{
+	_answer.Question = answerQuestion{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Admin", "model.Admin"),
-		Standard: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("Admin.Standard", "model.Standard"),
-		},
+		RelationField: field.NewRelation("Question", "model.Question"),
 	}
 
-	_admit.fillFieldMap()
+	_answer.fillFieldMap()
 
-	return _admit
+	return _answer
 }
 
-type admit struct {
-	admitDo admitDo
+type answer struct {
+	answerDo answerDo
 
 	ALL         field.Field
-	Group       field.String
 	ApplicantID field.Uint
-	AdminID     field.Uint
-	UpdatedAt   field.Time
-	Applicant   admitApplicant
+	QuestionID  field.Uint
+	TheAnswer   field.Bool
+	Applicant   answerApplicant
 
-	Admin admitAdmin
+	Question answerQuestion
 
 	fieldMap map[string]field.Expr
 }
 
-func (a admit) Table(newTableName string) *admit {
-	a.admitDo.UseTable(newTableName)
+func (a answer) Table(newTableName string) *answer {
+	a.answerDo.UseTable(newTableName)
 	return a.updateTableName(newTableName)
 }
 
-func (a admit) As(alias string) *admit {
-	a.admitDo.DO = *(a.admitDo.As(alias).(*gen.DO))
+func (a answer) As(alias string) *answer {
+	a.answerDo.DO = *(a.answerDo.As(alias).(*gen.DO))
 	return a.updateTableName(alias)
 }
 
-func (a *admit) updateTableName(table string) *admit {
+func (a *answer) updateTableName(table string) *answer {
 	a.ALL = field.NewField(table, "*")
-	a.Group = field.NewString(table, "group")
 	a.ApplicantID = field.NewUint(table, "applicant_id")
-	a.AdminID = field.NewUint(table, "admin_id")
-	a.UpdatedAt = field.NewTime(table, "updated_at")
+	a.QuestionID = field.NewUint(table, "question_id")
+	a.TheAnswer = field.NewBool(table, "the_answer")
 
 	a.fillFieldMap()
 
 	return a
 }
 
-func (a *admit) WithContext(ctx context.Context) *admitDo { return a.admitDo.WithContext(ctx) }
+func (a *answer) WithContext(ctx context.Context) *answerDo { return a.answerDo.WithContext(ctx) }
 
-func (a admit) TableName() string { return a.admitDo.TableName() }
+func (a answer) TableName() string { return a.answerDo.TableName() }
 
-func (a admit) Alias() string { return a.admitDo.Alias() }
+func (a answer) Alias() string { return a.answerDo.Alias() }
 
-func (a *admit) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (a *answer) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := a.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -145,21 +137,20 @@ func (a *admit) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	return _oe, ok
 }
 
-func (a *admit) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 6)
-	a.fieldMap["group"] = a.Group
+func (a *answer) fillFieldMap() {
+	a.fieldMap = make(map[string]field.Expr, 5)
 	a.fieldMap["applicant_id"] = a.ApplicantID
-	a.fieldMap["admin_id"] = a.AdminID
-	a.fieldMap["updated_at"] = a.UpdatedAt
+	a.fieldMap["question_id"] = a.QuestionID
+	a.fieldMap["the_answer"] = a.TheAnswer
 
 }
 
-func (a admit) clone(db *gorm.DB) admit {
-	a.admitDo.ReplaceDB(db)
+func (a answer) clone(db *gorm.DB) answer {
+	a.answerDo.ReplaceDB(db)
 	return a
 }
 
-type admitApplicant struct {
+type answerApplicant struct {
 	db *gorm.DB
 
 	field.RelationField
@@ -184,7 +175,7 @@ type admitApplicant struct {
 	}
 }
 
-func (a admitApplicant) Where(conds ...field.Expr) *admitApplicant {
+func (a answerApplicant) Where(conds ...field.Expr) *answerApplicant {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -197,22 +188,22 @@ func (a admitApplicant) Where(conds ...field.Expr) *admitApplicant {
 	return &a
 }
 
-func (a admitApplicant) WithContext(ctx context.Context) *admitApplicant {
+func (a answerApplicant) WithContext(ctx context.Context) *answerApplicant {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a admitApplicant) Model(m *model.Admit) *admitApplicantTx {
-	return &admitApplicantTx{a.db.Model(m).Association(a.Name())}
+func (a answerApplicant) Model(m *model.Answer) *answerApplicantTx {
+	return &answerApplicantTx{a.db.Model(m).Association(a.Name())}
 }
 
-type admitApplicantTx struct{ tx *gorm.Association }
+type answerApplicantTx struct{ tx *gorm.Association }
 
-func (a admitApplicantTx) Find() (result *model.Applicant, err error) {
+func (a answerApplicantTx) Find() (result *model.Applicant, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a admitApplicantTx) Append(values ...*model.Applicant) (err error) {
+func (a answerApplicantTx) Append(values ...*model.Applicant) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -220,7 +211,7 @@ func (a admitApplicantTx) Append(values ...*model.Applicant) (err error) {
 	return a.tx.Append(targetValues...)
 }
 
-func (a admitApplicantTx) Replace(values ...*model.Applicant) (err error) {
+func (a answerApplicantTx) Replace(values ...*model.Applicant) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -228,7 +219,7 @@ func (a admitApplicantTx) Replace(values ...*model.Applicant) (err error) {
 	return a.tx.Replace(targetValues...)
 }
 
-func (a admitApplicantTx) Delete(values ...*model.Applicant) (err error) {
+func (a answerApplicantTx) Delete(values ...*model.Applicant) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -236,25 +227,21 @@ func (a admitApplicantTx) Delete(values ...*model.Applicant) (err error) {
 	return a.tx.Delete(targetValues...)
 }
 
-func (a admitApplicantTx) Clear() error {
+func (a answerApplicantTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a admitApplicantTx) Count() int64 {
+func (a answerApplicantTx) Count() int64 {
 	return a.tx.Count()
 }
 
-type admitAdmin struct {
+type answerQuestion struct {
 	db *gorm.DB
 
 	field.RelationField
-
-	Standard struct {
-		field.RelationField
-	}
 }
 
-func (a admitAdmin) Where(conds ...field.Expr) *admitAdmin {
+func (a answerQuestion) Where(conds ...field.Expr) *answerQuestion {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -267,22 +254,22 @@ func (a admitAdmin) Where(conds ...field.Expr) *admitAdmin {
 	return &a
 }
 
-func (a admitAdmin) WithContext(ctx context.Context) *admitAdmin {
+func (a answerQuestion) WithContext(ctx context.Context) *answerQuestion {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a admitAdmin) Model(m *model.Admit) *admitAdminTx {
-	return &admitAdminTx{a.db.Model(m).Association(a.Name())}
+func (a answerQuestion) Model(m *model.Answer) *answerQuestionTx {
+	return &answerQuestionTx{a.db.Model(m).Association(a.Name())}
 }
 
-type admitAdminTx struct{ tx *gorm.Association }
+type answerQuestionTx struct{ tx *gorm.Association }
 
-func (a admitAdminTx) Find() (result *model.Admin, err error) {
+func (a answerQuestionTx) Find() (result *model.Question, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a admitAdminTx) Append(values ...*model.Admin) (err error) {
+func (a answerQuestionTx) Append(values ...*model.Question) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -290,7 +277,7 @@ func (a admitAdminTx) Append(values ...*model.Admin) (err error) {
 	return a.tx.Append(targetValues...)
 }
 
-func (a admitAdminTx) Replace(values ...*model.Admin) (err error) {
+func (a answerQuestionTx) Replace(values ...*model.Question) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -298,7 +285,7 @@ func (a admitAdminTx) Replace(values ...*model.Admin) (err error) {
 	return a.tx.Replace(targetValues...)
 }
 
-func (a admitAdminTx) Delete(values ...*model.Admin) (err error) {
+func (a answerQuestionTx) Delete(values ...*model.Question) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -306,151 +293,151 @@ func (a admitAdminTx) Delete(values ...*model.Admin) (err error) {
 	return a.tx.Delete(targetValues...)
 }
 
-func (a admitAdminTx) Clear() error {
+func (a answerQuestionTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a admitAdminTx) Count() int64 {
+func (a answerQuestionTx) Count() int64 {
 	return a.tx.Count()
 }
 
-type admitDo struct{ gen.DO }
+type answerDo struct{ gen.DO }
 
-func (a admitDo) Debug() *admitDo {
+func (a answerDo) Debug() *answerDo {
 	return a.withDO(a.DO.Debug())
 }
 
-func (a admitDo) WithContext(ctx context.Context) *admitDo {
+func (a answerDo) WithContext(ctx context.Context) *answerDo {
 	return a.withDO(a.DO.WithContext(ctx))
 }
 
-func (a admitDo) Clauses(conds ...clause.Expression) *admitDo {
+func (a answerDo) Clauses(conds ...clause.Expression) *answerDo {
 	return a.withDO(a.DO.Clauses(conds...))
 }
 
-func (a admitDo) Returning(value interface{}, columns ...string) *admitDo {
+func (a answerDo) Returning(value interface{}, columns ...string) *answerDo {
 	return a.withDO(a.DO.Returning(value, columns...))
 }
 
-func (a admitDo) Not(conds ...gen.Condition) *admitDo {
+func (a answerDo) Not(conds ...gen.Condition) *answerDo {
 	return a.withDO(a.DO.Not(conds...))
 }
 
-func (a admitDo) Or(conds ...gen.Condition) *admitDo {
+func (a answerDo) Or(conds ...gen.Condition) *answerDo {
 	return a.withDO(a.DO.Or(conds...))
 }
 
-func (a admitDo) Select(conds ...field.Expr) *admitDo {
+func (a answerDo) Select(conds ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Select(conds...))
 }
 
-func (a admitDo) Where(conds ...gen.Condition) *admitDo {
+func (a answerDo) Where(conds ...gen.Condition) *answerDo {
 	return a.withDO(a.DO.Where(conds...))
 }
 
-func (a admitDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) *admitDo {
+func (a answerDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) *answerDo {
 	return a.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
-func (a admitDo) Order(conds ...field.Expr) *admitDo {
+func (a answerDo) Order(conds ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Order(conds...))
 }
 
-func (a admitDo) Distinct(cols ...field.Expr) *admitDo {
+func (a answerDo) Distinct(cols ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Distinct(cols...))
 }
 
-func (a admitDo) Omit(cols ...field.Expr) *admitDo {
+func (a answerDo) Omit(cols ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Omit(cols...))
 }
 
-func (a admitDo) Join(table schema.Tabler, on ...field.Expr) *admitDo {
+func (a answerDo) Join(table schema.Tabler, on ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Join(table, on...))
 }
 
-func (a admitDo) LeftJoin(table schema.Tabler, on ...field.Expr) *admitDo {
+func (a answerDo) LeftJoin(table schema.Tabler, on ...field.Expr) *answerDo {
 	return a.withDO(a.DO.LeftJoin(table, on...))
 }
 
-func (a admitDo) RightJoin(table schema.Tabler, on ...field.Expr) *admitDo {
+func (a answerDo) RightJoin(table schema.Tabler, on ...field.Expr) *answerDo {
 	return a.withDO(a.DO.RightJoin(table, on...))
 }
 
-func (a admitDo) Group(cols ...field.Expr) *admitDo {
+func (a answerDo) Group(cols ...field.Expr) *answerDo {
 	return a.withDO(a.DO.Group(cols...))
 }
 
-func (a admitDo) Having(conds ...gen.Condition) *admitDo {
+func (a answerDo) Having(conds ...gen.Condition) *answerDo {
 	return a.withDO(a.DO.Having(conds...))
 }
 
-func (a admitDo) Limit(limit int) *admitDo {
+func (a answerDo) Limit(limit int) *answerDo {
 	return a.withDO(a.DO.Limit(limit))
 }
 
-func (a admitDo) Offset(offset int) *admitDo {
+func (a answerDo) Offset(offset int) *answerDo {
 	return a.withDO(a.DO.Offset(offset))
 }
 
-func (a admitDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *admitDo {
+func (a answerDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *answerDo {
 	return a.withDO(a.DO.Scopes(funcs...))
 }
 
-func (a admitDo) Unscoped() *admitDo {
+func (a answerDo) Unscoped() *answerDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a admitDo) Create(values ...*model.Admit) error {
+func (a answerDo) Create(values ...*model.Answer) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a admitDo) CreateInBatches(values []*model.Admit, batchSize int) error {
+func (a answerDo) CreateInBatches(values []*model.Answer, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a admitDo) Save(values ...*model.Admit) error {
+func (a answerDo) Save(values ...*model.Answer) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a admitDo) First() (*model.Admit, error) {
+func (a answerDo) First() (*model.Answer, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Admit), nil
+		return result.(*model.Answer), nil
 	}
 }
 
-func (a admitDo) Take() (*model.Admit, error) {
+func (a answerDo) Take() (*model.Answer, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Admit), nil
+		return result.(*model.Answer), nil
 	}
 }
 
-func (a admitDo) Last() (*model.Admit, error) {
+func (a answerDo) Last() (*model.Answer, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Admit), nil
+		return result.(*model.Answer), nil
 	}
 }
 
-func (a admitDo) Find() ([]*model.Admit, error) {
+func (a answerDo) Find() ([]*model.Answer, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.Admit), err
+	return result.([]*model.Answer), err
 }
 
-func (a admitDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Admit, err error) {
-	buf := make([]*model.Admit, 0, batchSize)
+func (a answerDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.Answer, err error) {
+	buf := make([]*model.Answer, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -458,49 +445,49 @@ func (a admitDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error
 	return results, err
 }
 
-func (a admitDo) FindInBatches(result *[]*model.Admit, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a answerDo) FindInBatches(result *[]*model.Answer, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (a admitDo) Attrs(attrs ...field.AssignExpr) *admitDo {
+func (a answerDo) Attrs(attrs ...field.AssignExpr) *answerDo {
 	return a.withDO(a.DO.Attrs(attrs...))
 }
 
-func (a admitDo) Assign(attrs ...field.AssignExpr) *admitDo {
+func (a answerDo) Assign(attrs ...field.AssignExpr) *answerDo {
 	return a.withDO(a.DO.Assign(attrs...))
 }
 
-func (a admitDo) Joins(fields ...field.RelationField) *admitDo {
+func (a answerDo) Joins(fields ...field.RelationField) *answerDo {
 	for _, _f := range fields {
 		a = *a.withDO(a.DO.Joins(_f))
 	}
 	return &a
 }
 
-func (a admitDo) Preload(fields ...field.RelationField) *admitDo {
+func (a answerDo) Preload(fields ...field.RelationField) *answerDo {
 	for _, _f := range fields {
 		a = *a.withDO(a.DO.Preload(_f))
 	}
 	return &a
 }
 
-func (a admitDo) FirstOrInit() (*model.Admit, error) {
+func (a answerDo) FirstOrInit() (*model.Answer, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Admit), nil
+		return result.(*model.Answer), nil
 	}
 }
 
-func (a admitDo) FirstOrCreate() (*model.Admit, error) {
+func (a answerDo) FirstOrCreate() (*model.Answer, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.Admit), nil
+		return result.(*model.Answer), nil
 	}
 }
 
-func (a admitDo) FindByPage(offset int, limit int) (result []*model.Admit, count int64, err error) {
+func (a answerDo) FindByPage(offset int, limit int) (result []*model.Answer, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -515,7 +502,7 @@ func (a admitDo) FindByPage(offset int, limit int) (result []*model.Admit, count
 	return
 }
 
-func (a admitDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (a answerDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = a.Count()
 	if err != nil {
 		return
@@ -525,7 +512,7 @@ func (a admitDo) ScanByPage(result interface{}, offset int, limit int) (count in
 	return
 }
 
-func (a *admitDo) withDO(do gen.Dao) *admitDo {
+func (a *answerDo) withDO(do gen.Dao) *answerDo {
 	a.DO = *do.(*gen.DO)
 	return a
 }

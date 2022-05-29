@@ -85,3 +85,16 @@ func ApplicantLogin(c *gin.Context) {
 	session.Save()
 	c.JSON(http.StatusOK, applicant)
 }
+
+// @Summary		面试者登出
+// @Description	面试者退出登录
+// @Tag			applicant
+// @Router		/api/applicant/logout [POST]
+// @Success		204
+// @Failure		401,500
+// @securityDefinitions.basic 面试者身份
+func ApplicantLogout(c *gin.Context) {
+	session := sessions.DefaultMany(c, "applicant")
+	session.Clear()
+	c.Status(http.StatusNoContent)
+}

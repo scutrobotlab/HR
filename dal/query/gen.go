@@ -15,6 +15,7 @@ var (
 	Q            = new(Query)
 	Admin        *admin
 	Admit        *admit
+	Answer       *answer
 	Applicant    *applicant
 	Intent       *intent
 	OptionalTime *optionalTime
@@ -29,6 +30,7 @@ func SetDefault(db *gorm.DB) {
 	*Q = *Use(db)
 	Admin = &Q.Admin
 	Admit = &Q.Admit
+	Answer = &Q.Answer
 	Applicant = &Q.Applicant
 	Intent = &Q.Intent
 	OptionalTime = &Q.OptionalTime
@@ -44,6 +46,7 @@ func Use(db *gorm.DB) *Query {
 		db:           db,
 		Admin:        newAdmin(db),
 		Admit:        newAdmit(db),
+		Answer:       newAnswer(db),
 		Applicant:    newApplicant(db),
 		Intent:       newIntent(db),
 		OptionalTime: newOptionalTime(db),
@@ -60,6 +63,7 @@ type Query struct {
 
 	Admin        admin
 	Admit        admit
+	Answer       answer
 	Applicant    applicant
 	Intent       intent
 	OptionalTime optionalTime
@@ -77,6 +81,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:           db,
 		Admin:        q.Admin.clone(db),
 		Admit:        q.Admit.clone(db),
+		Answer:       q.Answer.clone(db),
 		Applicant:    q.Applicant.clone(db),
 		Intent:       q.Intent.clone(db),
 		OptionalTime: q.OptionalTime.clone(db),
@@ -91,6 +96,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 type queryCtx struct {
 	Admin        adminDo
 	Admit        admitDo
+	Answer       answerDo
 	Applicant    applicantDo
 	Intent       intentDo
 	OptionalTime optionalTimeDo
@@ -105,6 +111,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Admin:        *q.Admin.WithContext(ctx),
 		Admit:        *q.Admit.WithContext(ctx),
+		Answer:       *q.Answer.WithContext(ctx),
 		Applicant:    *q.Applicant.WithContext(ctx),
 		Intent:       *q.Intent.WithContext(ctx),
 		OptionalTime: *q.OptionalTime.WithContext(ctx),

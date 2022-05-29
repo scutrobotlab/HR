@@ -3,17 +3,17 @@
     <v-tabs class="none-prev" v-model="idx">
       <v-tab v-for="g in groups" :key="g">{{ g }}</v-tab>
     </v-tabs>
-    <v-card class="my-3">
+    <v-card class="my-3" :loading="loading">
       <v-card-title>{{ groups[idx] }}面试题库</v-card-title>
       <v-divider />
-      <v-list :loading="loading">
-        <div v-for="q in questions" :key="q.id">
+      <v-list>
+        <div v-for="q in questions" :key="q.ID">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>{{ q.question }}</v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn icon color="error" @click="del(q.id)">
+              <v-btn icon color="error" @click="del(q.ID)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-list-item-action>
@@ -76,10 +76,11 @@ export default {
   },
   methods: {
     add() {
+      this.loading = true
       this.errorHandler(
         axios({
           method: "post",
-          url: "/api/exam/create",
+          url: "/api/admin/exam",
           data: {
             group: this.groups[this.idx],
             question: this.new_question,
@@ -89,20 +90,23 @@ export default {
         .then(() => (this.new_question = ""))
         .finally(() => this.getQuestions());
     },
-    del(id) {
+    del(ID) {
+      this.loading = true
       this.errorHandler(
         axios({
           method: "delete",
-          url: "/api/exam/" + id,
+          url: "/api/admin/exam/" + ID,
         })
-      ).finally(() => this.getQuestions());
+      ).finally(() =>{ 
+        this.getQuestions();
+      });
     },
     getQuestions() {
       this.loading = true;
       this.errorHandler(
         axios
           .get("/api/public/exam/" + this.groups[this.idx])
-          .then((response) => (this.questions = response.data.questions))
+          .then((response) => (this.questions = response.data))
           .finally(() => (this.loading = false))
       );
     },

@@ -29,11 +29,12 @@ func newApplicant(db *gorm.DB) applicant {
 	_applicant.CreatedAt = field.NewTime(tableName, "created_at")
 	_applicant.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_applicant.DeletedAt = field.NewField(tableName, "deleted_at")
+	_applicant.OpenID = field.NewString(tableName, "open_id")
 	_applicant.Name = field.NewString(tableName, "name")
 	_applicant.Gender = field.NewBool(tableName, "gender")
 	_applicant.Phone = field.NewString(tableName, "phone")
 	_applicant.Avatar = field.NewString(tableName, "avatar")
-	_applicant.Form = field.NewString(tableName, "form")
+	_applicant.Form = field.NewField(tableName, "form")
 	_applicant.Intents = applicantIntents{
 		db: db.Session(&gorm.Session{}),
 
@@ -43,6 +44,15 @@ func newApplicant(db *gorm.DB) applicant {
 			Intents struct {
 				field.RelationField
 			}
+			Answers struct {
+				field.RelationField
+				Applicant struct {
+					field.RelationField
+				}
+				Question struct {
+					field.RelationField
+				}
+			}
 		}{
 			RelationField: field.NewRelation("Intents.Applicant", "model.Applicant"),
 			Intents: struct {
@@ -50,12 +60,39 @@ func newApplicant(db *gorm.DB) applicant {
 			}{
 				RelationField: field.NewRelation("Intents.Applicant.Intents", "model.Intent"),
 			},
+			Answers: struct {
+				field.RelationField
+				Applicant struct {
+					field.RelationField
+				}
+				Question struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("Intents.Applicant.Answers", "model.Answer"),
+				Applicant: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Intents.Applicant.Answers.Applicant", "model.Applicant"),
+				},
+				Question: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Intents.Applicant.Answers.Question", "model.Question"),
+				},
+			},
 		},
 		OptionalTime: struct {
 			field.RelationField
 		}{
 			RelationField: field.NewRelation("Intents.OptionalTime", "model.OptionalTime"),
 		},
+	}
+
+	_applicant.Answers = applicantAnswers{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Answers", "model.Answer"),
 	}
 
 	_applicant.fillFieldMap()
@@ -71,12 +108,15 @@ type applicant struct {
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
+	OpenID    field.String
 	Name      field.String
 	Gender    field.Bool
 	Phone     field.String
 	Avatar    field.String
-	Form      field.String
+	Form      field.Field
 	Intents   applicantIntents
+
+	Answers applicantAnswers
 
 	fieldMap map[string]field.Expr
 }
@@ -97,11 +137,12 @@ func (a *applicant) updateTableName(table string) *applicant {
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
+	a.OpenID = field.NewString(table, "open_id")
 	a.Name = field.NewString(table, "name")
 	a.Gender = field.NewBool(table, "gender")
 	a.Phone = field.NewString(table, "phone")
 	a.Avatar = field.NewString(table, "avatar")
-	a.Form = field.NewString(table, "form")
+	a.Form = field.NewField(table, "form")
 
 	a.fillFieldMap()
 
@@ -126,11 +167,12 @@ func (a *applicant) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *applicant) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 12)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
+	a.fieldMap["open_id"] = a.OpenID
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["gender"] = a.Gender
 	a.fieldMap["phone"] = a.Phone
@@ -153,6 +195,15 @@ type applicantIntents struct {
 		field.RelationField
 		Intents struct {
 			field.RelationField
+		}
+		Answers struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			Question struct {
+				field.RelationField
+			}
 		}
 	}
 	OptionalTime struct {
@@ -217,6 +268,72 @@ func (a applicantIntentsTx) Clear() error {
 }
 
 func (a applicantIntentsTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type applicantAnswers struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a applicantAnswers) Where(conds ...field.Expr) *applicantAnswers {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a applicantAnswers) WithContext(ctx context.Context) *applicantAnswers {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a applicantAnswers) Model(m *model.Applicant) *applicantAnswersTx {
+	return &applicantAnswersTx{a.db.Model(m).Association(a.Name())}
+}
+
+type applicantAnswersTx struct{ tx *gorm.Association }
+
+func (a applicantAnswersTx) Find() (result *model.Answer, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a applicantAnswersTx) Append(values ...*model.Answer) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a applicantAnswersTx) Replace(values ...*model.Answer) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a applicantAnswersTx) Delete(values ...*model.Answer) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a applicantAnswersTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a applicantAnswersTx) Count() int64 {
 	return a.tx.Count()
 }
 

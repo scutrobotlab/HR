@@ -4,9 +4,9 @@ const TableNameRemark = "remarks"
 
 // Remark mapped from table <remarks>
 type Remark struct {
-	AdminID     uint      `gorm:"primaryKey" json:"-"`
+	AdminID     uint      `gorm:"primaryKey;autoIncrement:false" json:"-"`
 	Admin       Admin     `json:"-"`
-	ApplicantID uint      `gorm:"primaryKey"`
+	ApplicantID uint      `gorm:"primaryKey;autoIncrement:false"`
 	Applicant   Applicant `json:"-"`
 	TheRemark   string    `gorm:"type:text"`
 }

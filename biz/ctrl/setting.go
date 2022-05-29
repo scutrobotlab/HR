@@ -9,10 +9,10 @@ import (
 )
 
 type timeframe struct {
-	FormStart string `json:"form-start" binding:"required"`
-	FormEnd   string `json:"form-end" binding:"required"`
-	TimeStart string `json:"time-start" binding:"required"`
-	TimeEnd   string `json:"time-end" binding:"required"`
+	FormStart string `json:"form_start" binding:"required"`
+	FormEnd   string `json:"form_end" binding:"required"`
+	TimeStart string `json:"time_start" binding:"required"`
+	TimeEnd   string `json:"time_end" binding:"required"`
 	Done      string `json:"done" binding:"required"`
 }
 

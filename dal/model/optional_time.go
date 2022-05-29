@@ -12,7 +12,7 @@ const TableNameOptionalTime = "optional_time"
 type OptionalTime struct {
 	gorm.Model  `swaggerignore:"true"`
 	TheDate     time.Time `gorm:"type:date"`
-	TheTime     time.Time `gorm:"type:time with time zone"`
+	TheTime     time.Time `gorm:"type:time without time zone"`
 	TheLocation string
 	Group       string `gorm:"type:character varying(16)"`
 	IntentRank  uint   // 限定面试轮次

@@ -64,6 +64,27 @@ func newRemark(db *gorm.DB) remark {
 				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
 			},
 		},
+		Answers: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			Question struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Answers", "model.Answer"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Applicant", "model.Applicant"),
+			},
+			Question: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Question", "model.Question"),
+			},
+		},
 	}
 
 	_remark.fillFieldMap()
@@ -215,6 +236,15 @@ type remarkApplicant struct {
 			field.RelationField
 		}
 		OptionalTime struct {
+			field.RelationField
+		}
+	}
+	Answers struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		Question struct {
 			field.RelationField
 		}
 	}

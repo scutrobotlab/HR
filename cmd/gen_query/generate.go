@@ -29,6 +29,7 @@ func main() {
 		model.Admin{},
 		model.Admit{},
 		model.Applicant{},
+		model.Answer{},
 		model.Intent{},
 		model.OptionalTime{},
 		model.Question{},

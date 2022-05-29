@@ -8,9 +8,9 @@ const TableNameScore = "scores"
 
 // Score mapped from table <scores>
 type Score struct {
-	AdminID           uint      `gorm:"primaryKey"`
+	AdminID           uint      `gorm:"primaryKey;autoIncrement:false"`
 	Admin             Admin     `json:"-"`
-	ApplicantID       uint      `gorm:"primaryKey"`
+	ApplicantID       uint      `gorm:"primaryKey;autoIncrement:false"`
 	Applicant         Applicant `json:"-"`
 	Group             string    `gorm:"type:character varying(16);primaryKey"`
 	Score             float64

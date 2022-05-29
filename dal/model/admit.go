@@ -8,11 +8,11 @@ const TableNameAdmit = "admit"
 
 // Admit mapped from table <admit>
 type Admit struct {
-	ApplicantID uint      `gorm:"primaryKey"`
+	Group       string    `gorm:"type:character varying(16);primaryKey"`
+	ApplicantID uint      `gorm:"primaryKey;autoIncrement:false"`
 	Applicant   Applicant `json:"-"`
 	AdminID     uint      `swaggerignore:"true"`
 	Admin       Admin     `json:"-"`
-	Group       string    `gorm:"type:character varying(16);primaryKey"`
 	UpdatedAt   time.Time `swaggerignore:"true"`
 }
 

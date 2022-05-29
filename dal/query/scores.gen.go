@@ -68,6 +68,27 @@ func newScore(db *gorm.DB) score {
 				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
 			},
 		},
+		Answers: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			Question struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Answers", "model.Answer"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Applicant", "model.Applicant"),
+			},
+			Question: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Question", "model.Question"),
+			},
+		},
 	}
 
 	_score.Standard = scoreStandard{
@@ -239,6 +260,15 @@ type scoreApplicant struct {
 			field.RelationField
 		}
 		OptionalTime struct {
+			field.RelationField
+		}
+	}
+	Answers struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		Question struct {
 			field.RelationField
 		}
 	}

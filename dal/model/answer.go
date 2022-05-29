@@ -4,9 +4,9 @@ const TableNameAnswer = "answer"
 
 // Answer mapped from table <answer>
 type Answer struct {
-	ApplicantID uint `gorm:"primaryKey"`
+	ApplicantID uint `gorm:"primaryKey;autoIncrement:false"`
 	Applicant   Applicant
-	QuestionID  uint `gorm:"primaryKey"`
+	QuestionID  uint `gorm:"primaryKey;autoIncrement:false"`
 	Question    Question
 	TheAnswer   bool
 }

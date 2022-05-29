@@ -40,3 +40,26 @@ func AdminGetApplicantInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, applicant)
 }
+
+// @Summary		面试者名单
+// @Description 管理员获取面试者名单
+// @Tags		admin
+// @Router		/api/admin/applicants/name-list [GET]
+// @Success		200  {array}	[]string	"name list"
+// @Failure		401,404,500
+// @securityDefinitions.basic 管理员身份
+func AdminGetNameList(c *gin.Context) {
+	applicants, err := q.Applicant.WithContext(ctx).
+		Select(q.Applicant.Name).
+		Find()
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		log.Println(err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, applicants)
+}

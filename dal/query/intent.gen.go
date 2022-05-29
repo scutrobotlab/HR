@@ -25,13 +25,9 @@ func newIntent(db *gorm.DB) intent {
 
 	tableName := _intent.intentDo.TableName()
 	_intent.ALL = field.NewField(tableName, "*")
-	_intent.ID = field.NewUint(tableName, "id")
-	_intent.CreatedAt = field.NewTime(tableName, "created_at")
-	_intent.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_intent.DeletedAt = field.NewField(tableName, "deleted_at")
 	_intent.ApplicantID = field.NewUint(tableName, "applicant_id")
 	_intent.Group = field.NewString(tableName, "group")
-	_intent.IntentRank = field.NewInt16(tableName, "intent_rank")
+	_intent.IntentRank = field.NewUint(tableName, "intent_rank")
 	_intent.OptionalTimeID = field.NewUint(tableName, "optional_time_id")
 	_intent.Applicant = intentApplicant{
 		db: db.Session(&gorm.Session{}),
@@ -58,6 +54,27 @@ func newIntent(db *gorm.DB) intent {
 				RelationField: field.NewRelation("Applicant.Intents.OptionalTime", "model.OptionalTime"),
 			},
 		},
+		Answers: struct {
+			field.RelationField
+			Applicant struct {
+				field.RelationField
+			}
+			Question struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Applicant.Answers", "model.Answer"),
+			Applicant: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Applicant", "model.Applicant"),
+			},
+			Question: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Applicant.Answers.Question", "model.Question"),
+			},
+		},
 	}
 
 	_intent.OptionalTime = intentOptionalTime{
@@ -75,13 +92,9 @@ type intent struct {
 	intentDo intentDo
 
 	ALL            field.Field
-	ID             field.Uint
-	CreatedAt      field.Time
-	UpdatedAt      field.Time
-	DeletedAt      field.Field
 	ApplicantID    field.Uint
 	Group          field.String
-	IntentRank     field.Int16
+	IntentRank     field.Uint
 	OptionalTimeID field.Uint
 	Applicant      intentApplicant
 
@@ -102,13 +115,9 @@ func (i intent) As(alias string) *intent {
 
 func (i *intent) updateTableName(table string) *intent {
 	i.ALL = field.NewField(table, "*")
-	i.ID = field.NewUint(table, "id")
-	i.CreatedAt = field.NewTime(table, "created_at")
-	i.UpdatedAt = field.NewTime(table, "updated_at")
-	i.DeletedAt = field.NewField(table, "deleted_at")
 	i.ApplicantID = field.NewUint(table, "applicant_id")
 	i.Group = field.NewString(table, "group")
-	i.IntentRank = field.NewInt16(table, "intent_rank")
+	i.IntentRank = field.NewUint(table, "intent_rank")
 	i.OptionalTimeID = field.NewUint(table, "optional_time_id")
 
 	i.fillFieldMap()
@@ -132,11 +141,7 @@ func (i *intent) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (i *intent) fillFieldMap() {
-	i.fieldMap = make(map[string]field.Expr, 10)
-	i.fieldMap["id"] = i.ID
-	i.fieldMap["created_at"] = i.CreatedAt
-	i.fieldMap["updated_at"] = i.UpdatedAt
-	i.fieldMap["deleted_at"] = i.DeletedAt
+	i.fieldMap = make(map[string]field.Expr, 6)
 	i.fieldMap["applicant_id"] = i.ApplicantID
 	i.fieldMap["group"] = i.Group
 	i.fieldMap["intent_rank"] = i.IntentRank
@@ -160,6 +165,15 @@ type intentApplicant struct {
 			field.RelationField
 		}
 		OptionalTime struct {
+			field.RelationField
+		}
+	}
+	Answers struct {
+		field.RelationField
+		Applicant struct {
+			field.RelationField
+		}
+		Question struct {
 			field.RelationField
 		}
 	}

@@ -1,4 +1,13 @@
 definitions:
+  ctrl.Answer:
+    properties:
+      answer:
+        type: boolean
+      question:
+        type: string
+      question_id:
+        type: integer
+    type: object
   ctrl.OptionalTime:
     properties:
       date:
@@ -11,14 +20,14 @@ definitions:
         example: 春茧体育馆
         type: string
       rank:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
       time:
         example: "15:04:05"
         type: string
       total_cnt:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
     type: object
   ctrl.announce:
     properties:
@@ -87,20 +96,20 @@ definitions:
     properties:
       done:
         type: string
-      form-end:
+      form_end:
         type: string
-      form-start:
+      form_start:
         type: string
-      time-end:
+      time_end:
         type: string
-      time-start:
+      time_start:
         type: string
     required:
     - done
-    - form-end
-    - form-start
-    - time-end
-    - time-start
+    - form_end
+    - form_start
+    - time_end
+    - time_start
     type: object
   mid.Admin:
     properties:
@@ -141,12 +150,31 @@ definitions:
       group:
         type: string
     type: object
+  model.Answer:
+    properties:
+      applicant:
+        $ref: '#/definitions/model.Applicant'
+      applicantID:
+        type: integer
+      question:
+        $ref: '#/definitions/model.Question'
+      questionID:
+        type: integer
+      theAnswer:
+        type: boolean
+    type: object
   model.Applicant:
     properties:
+      answers:
+        items:
+          $ref: '#/definitions/model.Answer'
+        type: array
       avatar:
         type: string
       form:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       gender:
         type: boolean
       intents:
@@ -155,19 +183,17 @@ definitions:
         type: array
       name:
         type: string
+      openID:
+        type: string
       phone:
         type: string
     type: object
   model.Intent:
     properties:
-      applicant:
-        $ref: '#/definitions/model.Applicant'
-      applicantID:
-        type: integer
       group:
         type: string
       intentRank:
-        description: nil 为平行志愿
+        description: 0 为平行志愿
         type: integer
       optionalTime:
         $ref: '#/definitions/model.OptionalTime'
@@ -299,6 +325,27 @@ paths:
         "500":
           description: ""
       summary: 面试者信息
+      tags:
+      - admin
+  /api/admin/applicants/name-list:
+    get:
+      description: 管理员获取面试者名单
+      responses:
+        "200":
+          description: name list
+          schema:
+            items:
+              items:
+                type: string
+              type: array
+            type: array
+        "401":
+          description: ""
+        "404":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者名单
       tags:
       - admin
   /api/admin/exam:
@@ -755,6 +802,49 @@ paths:
       summary: 统计面试时间
       tags:
       - admin
+  /api/applicant/answer:
+    post:
+      description: applicant submit answers
+      parameters:
+      - description: answers
+        in: body
+        name: answers
+        required: true
+        schema:
+          $ref: '#/definitions/model.Answer'
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者提交问题回答
+      tags:
+      - applicant
+  /api/applicant/answer/{group}:
+    get:
+      description: applicant get answers of a group
+      parameters:
+      - description: group
+        in: path
+        name: group
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ctrl.Answer'
+            type: array
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者获取特定组问题回答
+      tags:
+      - applicant
   /api/applicant/info:
     get:
       description: 面试者获取自己的微信信息
@@ -789,6 +879,37 @@ paths:
         "404":
           description: ""
       summary: 面试者登录
+      tags:
+      - applicant
+  /api/applicant/logout:
+    post:
+      description: 面试者退出登录
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者登出
+  /api/applicant/time:
+    post:
+      description: applicant choose optional time for intent
+      parameters:
+      - description: 包括组别、轮次、面试时间ID
+        in: body
+        name: time
+        required: true
+        schema:
+          $ref: '#/definitions/model.Intent'
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: ""
+        "500":
+          description: ""
+      summary: 面试者选择面试时间
       tags:
       - applicant
   /api/setting/announce:

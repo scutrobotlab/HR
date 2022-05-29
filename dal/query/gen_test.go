@@ -79,6 +79,7 @@ func Test_WithContext(t *testing.T) {
 	for _, ctx := range []context.Context{
 		qCtx.Admin.UnderlyingDB().Statement.Context,
 		qCtx.Admit.UnderlyingDB().Statement.Context,
+		qCtx.Answer.UnderlyingDB().Statement.Context,
 		qCtx.Applicant.UnderlyingDB().Statement.Context,
 		qCtx.Intent.UnderlyingDB().Statement.Context,
 		qCtx.OptionalTime.UnderlyingDB().Statement.Context,

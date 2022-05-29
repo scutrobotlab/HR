@@ -11,10 +11,10 @@ export default {
     getDailyNew({ state }) {
       state.dailyNew.data = [];
       state.dailyNew.updated = null;
-      return axios.get("/api/statistics/dailynew").then((response) => {
-        state.dailyNew.data = response.data.applicants;
-        state.dailyNew.updated = new Date();
-      });
+      // return axios.get("/api/statistics/dailynew").then((response) => {
+      //   state.dailyNew.data = response.data.applicants;
+      //   state.dailyNew.updated = new Date();
+      // });
     },
     getClass({ state }, data) {
       state.class.data = [];

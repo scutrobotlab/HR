@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12" sm="6" v-for="tc in TimeFrames" :key="tc.key">
+      <v-col cols="12" sm="6" v-for="(v, k, i) in TimeFrames" :key="i">
         <date-time-picker
-          :label="$t(tc.key)"
-          v-model="tc.value"
+          :label="$t(k)"
+          :input="v"
           :loading="loading"
           :disabled="loading"
         />
@@ -22,26 +22,23 @@ import DateTimePicker from "@/components/DateTimePicker.vue";
 export default {
   components: { DateTimePicker },
   data: () => ({
-    TimeFrames: [
-      { key: "apply_form_start", value: null },
-      { key: "apply_form_end", value: null },
-      { key: "select_time_start", value: null },
-      { key: "select_time_end", value: null },
-      { key: "publish_result_start", value: null },
-    ],
+    TimeFrames: {
+      form_start: null ,
+      form_end: null ,
+      time_start: null ,
+      time_end: null ,
+      done: null ,
+    },
     loading: false,
   }),
   mounted() {
     this.loading = true;
     axios({
       method: "get",
-      url: "/api/time-frame",
+      url: "/api/public/time-frame",
     })
       .then((response) => {
-        response.data.forEach((kv) => {
-          var time_frame = this.TimeFrames.find((tc) => tc.key === kv.key);
-          if (time_frame) time_frame.value = kv.value;
-        });
+        this.TimeFrames = response.data;
       })
       .finally(() => (this.loading = false));
   },
@@ -53,8 +50,8 @@ export default {
       TimeFrames.forEach((tc) => (tc.value = moment(tc.value).format("YYYY/MM/DD HH:mm:ss")));
       axios({
         method: "post",
-        url: "/api/time-frame",
-        data: { TimeFrames: TimeFrames },
+        url: "/api/admin/time-frame",
+        data: TimeFrames,
       })
         .then((response) => {
           window.console.log(response.data);

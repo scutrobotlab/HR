@@ -45,10 +45,11 @@ func Run() {
 	{
 		applicant.GET("/info", ctrl.ApplicantInfo) // 我的微信信息
 		applicant.GET("/status")                   // 我的状态信息（步骤+面试时间+面试结果）
-		applicant.GET("/exam/:group")              // 我的题库回答
+
+		applicant.GET("/answer/:group", ctrl.ApplicantGetAnswer) // 我的题库回答
+		applicant.POST("/answer", ctrl.ApplicantSubmitAnswer)    // 提交题库回答
 
 		applicant.POST("/apply") // 提交表单
-		applicant.POST("/exam")  // 提交题库回答
 		applicant.POST("/time")  // 选择面试时间
 	}
 
@@ -56,8 +57,8 @@ func Run() {
 	admin := r.Group("/api/admin")                   // 面试官登录后接口
 	admin.Use(mid.AdminAuth())
 	{
-		admin.GET("/info", ctrl.AdminInfo) // 我的信息
-		admin.POST("/logout")              // 登出
+		admin.POST("/logout", mid.ApplicantLogout) // 登出
+		admin.GET("/info", ctrl.AdminInfo)         // 我的信息
 
 		admin.PUT("/standard", ctrl.AdminSetStandard) // 设置默认评价标准
 
@@ -76,8 +77,8 @@ func Run() {
 		}
 		aas := admin.Group("/applicants") // 面试者批量管理
 		{
-			aas.GET("/:group")    // 获取组别名单（用于展示）
-			aas.PUT("/name-list") // 全部名单（用于搜索）
+			aas.GET("/:group")                           // 获取组别名单（用于展示）
+			aas.GET("/name-list", ctrl.AdminGetNameList) // 全部名单（用于搜索）
 		}
 		exam := admin.Group("/exam") // 面试题库管理
 		{
@@ -95,10 +96,10 @@ func Run() {
 		}
 		time := admin.Group("/time") // 面试时间管理
 		{
-			time.GET("/cnt", ctrl.CntOptTime) // 面试时间数量统计
-			time.GET("")                      // 导出面试时间(CSV)
-			time.POST("", ctrl.SetOptTime)    // 上传面试时间(CSV)
-			time.DELETE("", ctrl.DelOptTime)  // 清空组别面试时间
+			time.GET("/cnt", ctrl.CntOptTime)     // 面试时间数量统计
+			time.GET("", ctrl.DownloadOptTimeCSV) // 导出面试时间(CSV)
+			time.POST("", ctrl.SetOptTime)        // 上传面试时间
+			time.DELETE("", ctrl.DelOptTime)      // 清空组别面试时间
 		}
 	}
 

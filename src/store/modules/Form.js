@@ -13,7 +13,7 @@ export default {
       if (state.loaded) return;
       return axios({
         method: "get",
-        url: "/api/form/get",
+        url: "/api/public/form",
       }).then((response) => {
         state.form = response.data.form;
       });

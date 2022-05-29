@@ -174,7 +174,7 @@ func DelOptTime(c *gin.Context) {
 // @Param	groups	body	[]string	true	"给定的组别"
 // @Success 200
 // @Router	/api/admin/time	[DELETE]
-func GetOptTimeCSV(c *gin.Context) {
+func DownloadOptTimeCSV(c *gin.Context) {
 	var groups []string
 	err := c.BindJSON(&groups)
 	if err != nil {

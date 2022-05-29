@@ -5,9 +5,9 @@
   "intent": "意向组别",
   "male": "男",
   "female": "女",
-  "apply_form_start": "提交报名表单 开始",
-  "apply_form_end": "提交报名表单 结束",
-  "select_time_start": "选择面试时间 开始",
-  "select_time_end": "选择面试时间 结束",
-  "publish_result_start": "公布面试结果 开始"
+  "form_start": "提交报名表单 开始",
+  "form_end": "提交报名表单 结束",
+  "time_start": "选择面试时间 开始",
+  "time_end": "选择面试时间 结束",
+  "done": "公布面试结果 开始"
 }

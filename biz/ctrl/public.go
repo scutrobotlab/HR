@@ -48,9 +48,8 @@ func GetExam(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	question, err := q.Question.WithContext(ctx).
-		Where(q.Question.Group.Eq(group)).
-		Take()
+	questions, err := q.Question.WithContext(ctx).
+		Where(q.Question.Group.Eq(group)).Find()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.Status(http.StatusNoContent)
 		return
@@ -59,7 +58,7 @@ func GetExam(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, question)
+	c.JSON(http.StatusOK, questions)
 }
 
 // @Summary 获取面试时间

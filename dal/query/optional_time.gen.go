@@ -33,7 +33,8 @@ func newOptionalTime(db *gorm.DB) optionalTime {
 	_optionalTime.TheTime = field.NewTime(tableName, "the_time")
 	_optionalTime.TheLocation = field.NewString(tableName, "the_location")
 	_optionalTime.Group = field.NewString(tableName, "group")
-	_optionalTime.IntentRank = field.NewInt16(tableName, "intent_rank")
+	_optionalTime.IntentRank = field.NewUint(tableName, "intent_rank")
+	_optionalTime.TotalCount = field.NewUint(tableName, "total_count")
 
 	_optionalTime.fillFieldMap()
 
@@ -52,7 +53,8 @@ type optionalTime struct {
 	TheTime     field.Time
 	TheLocation field.String
 	Group       field.String
-	IntentRank  field.Int16
+	IntentRank  field.Uint
+	TotalCount  field.Uint
 
 	fieldMap map[string]field.Expr
 }
@@ -77,7 +79,8 @@ func (o *optionalTime) updateTableName(table string) *optionalTime {
 	o.TheTime = field.NewTime(table, "the_time")
 	o.TheLocation = field.NewString(table, "the_location")
 	o.Group = field.NewString(table, "group")
-	o.IntentRank = field.NewInt16(table, "intent_rank")
+	o.IntentRank = field.NewUint(table, "intent_rank")
+	o.TotalCount = field.NewUint(table, "total_count")
 
 	o.fillFieldMap()
 
@@ -102,7 +105,7 @@ func (o *optionalTime) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *optionalTime) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 9)
+	o.fieldMap = make(map[string]field.Expr, 10)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["created_at"] = o.CreatedAt
 	o.fieldMap["updated_at"] = o.UpdatedAt
@@ -112,6 +115,7 @@ func (o *optionalTime) fillFieldMap() {
 	o.fieldMap["the_location"] = o.TheLocation
 	o.fieldMap["group"] = o.Group
 	o.fieldMap["intent_rank"] = o.IntentRank
+	o.fieldMap["total_count"] = o.TotalCount
 }
 
 func (o optionalTime) clone(db *gorm.DB) optionalTime {
