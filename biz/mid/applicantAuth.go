@@ -21,11 +21,12 @@ type Applicant struct {
 func ApplicantAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.DefaultMany(c, "applicant")
-		nickname, ok1 := session.Get("applicant").(string)
-		openid, ok2 := session.Get("applicant").(string)
-		headimgurl, ok3 := session.Get("applicant").(string)
+		nickname, ok1 := session.Get("nickname").(string)
+		openid, ok2 := session.Get("openid").(string)
+		headimgurl, ok3 := session.Get("headimgurl").(string)
 		if !(ok1 && ok2 && ok3) {
-			c.AbortWithStatus(http.StatusForbidden)
+			log.Printf("applicant unauthorized (nickname: %t, openid: %t, headimgurl: %t)", ok1, ok2, ok3)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		c.Set("applicant", &Applicant{

@@ -74,8 +74,8 @@ export default {
   },
   created() {
     window.console.log(`祝贺您发现彩蛋！
-本网站由华工机器人实验室“战略信息组”开发。
-如果你想加入“战略信息组”，请联系微信 M3chD09 。`);
+本网站由华工机器人实验室“信息组”开发。
+如果你想加入“信息组”，可在自我介绍中填写暗号 M3chD09 。`);
     if (!this.wechat) {
       if (process.env.NODE_ENV != "production" || this.$route.query.token) {
         this.errorHandler(this.$store.dispatch("applicant/wechatLogin", this.$route.query.token));
@@ -87,9 +87,8 @@ export default {
     }
   },
   mounted() {
-    this.errorHandler(this.$store.dispatch("allowJoinus/canApplyForm"));
-    this.errorHandler(this.$store.dispatch("allowJoinus/canSelectTime"));
-    this.$store.dispatch("applicant/getModel");
+    this.errorHandler(this.$store.dispatch("timeFrame/get"));
+    this.$store.dispatch("applicant/get");
   },
   computed: {
     wechat() {
@@ -102,7 +101,7 @@ export default {
   },
   watch: {
     wechat() {
-      this.$store.dispatch("applicant/getStep");
+      this.$store.dispatch("applicant/get");
     },
 
     step(new_val) {
@@ -111,7 +110,7 @@ export default {
     },
 
     "$route.path"() {
-      this.$store.dispatch("applicant/getStep");
+      this.$store.dispatch("applicant/get");
     },
   },
   methods: {
@@ -120,7 +119,7 @@ export default {
     },
     goNext() {
       this.$store
-        .dispatch("applicant/getStep")
+        .dispatch("applicant/get")
         .then(this.$router.push(this.tabs[this.step - 1].url));
     },
     secAvatar(avatar) {

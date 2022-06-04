@@ -3,7 +3,7 @@ import axios from "axios";
 export default {
   namespaced: true,
   state: {
-    form: null,
+    fields: null,
     intent: null,
     loaded: false,
   },
@@ -15,7 +15,8 @@ export default {
         method: "get",
         url: "/api/public/form",
       }).then((response) => {
-        state.form = response.data.form;
+        state.fields = response.data.fields;
+        state.intent = response.data.intent;
       });
     },
   },

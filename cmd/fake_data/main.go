@@ -76,7 +76,7 @@ func getSetting(key string) model.Setting {
 	if err != nil {
 		log.Panicln(err.Error())
 	}
-	path := path.Join(dir, key+".json")
+	path := dir + "/../migrate/" + key + ".json"
 	b, err := os.ReadFile(path)
 	if err != nil {
 		log.Panicln(err.Error())

@@ -11,7 +11,7 @@ type Applicant struct {
 	gorm.Model `swaggerignore:"true"`
 	OpenID     string            `gorm:"type:character varying(64);unique;not null"`
 	Name       string            `gorm:"type:character varying(16);not null"`
-	Gender     *bool             `gorm:"type:boolean"`
+	Gender     *string           `gorm:"type:character varying(8)"`
 	Phone      *string           `gorm:"type:character varying(16)"`
 	Avatar     *string           `gorm:"type:character varying(256)"`
 	Form       map[string]string `gorm:"type:jsonb;not null"`

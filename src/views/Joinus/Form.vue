@@ -125,7 +125,7 @@ export default {
     intent: null,
     valid: true,
     model: {
-      wechat_id: null,
+      open_id: null,
       name: "",
       gender: "",
       phone: "",
@@ -146,19 +146,30 @@ export default {
       return this.$store.state.applicant.model;
     },
     can_apply() {
-      return this.$store.state.allowJoinus.applyForm.status;
+      let timeFrame = this.$store.state.timeFrame;
+      if (!timeFrame) return false;
+      let now = moment();
+      if (timeFrame.form_start === null) return false;
+      else if (now.isBefore(timeFrame.form_start))
+        return false;
+      else {
+        if (timeFrame.form_end === null) return true;
+        else if (now.isBefore(timeFrame.form_end))
+          return true;
+        else return false;
+      }
     },
     prompt_message() {
-      let apply = this.$store.state.allowJoinus.applyForm;
-      if (!apply) return "";
+      let timeFrame = this.$store.state.timeFrame;
+      if (!timeFrame) return "";
       let now = moment();
-      if (apply.start === null) return "报名尚未开始，请等候通知。";
-      else if (now.isBefore(apply.start))
-        return "报名将于" + moment(apply.start).fromNow() + "开始。";
+      if (timeFrame.form_start === null) return "报名尚未开始，请等候通知。";
+      else if (now.isBefore(timeFrame.form_start))
+        return "报名将于" + moment(timeFrame.form_start).fromNow() + "开始。";
       else {
-        if (apply.end === null) return "请填写报名表。";
-        else if (now.isBefore(apply.end))
-          return "报名表填写将于" + moment(apply.end).fromNow() + "截止。";
+        if (timeFrame.form_end === null) return "请填写报名表。";
+        else if (now.isBefore(timeFrame.form_end))
+          return "报名表填写将于" + moment(timeFrame.form_end).fromNow() + "截止。";
         else return "报名表填写已经结束。";
       }
     },
@@ -169,17 +180,17 @@ export default {
       return this.$store.state.groups.list;
     },
     form() {
-      return this.$store.state.form.form;
+      return this.$store.state.form.fields;
     },
   },
   methods: {
     submit() {
       this.submit_loading = true;
-      this.model.wechat_id = this.$store.state.applicant.wechat.openid;
+      this.model.open_id = this.$store.state.applicant.wechat.openid;
       this.errorHandler(
         axios({
-          method: "post",
-          url: "/api/joinus/apply",
+          method: "put",
+          url: "/api/applicant/apply",
           data: this.model,
         })
           .then(() => {
@@ -192,19 +203,8 @@ export default {
   },
   mounted() {
     this.$store.dispatch("groups/get");
-    this.$store.dispatch("allowJoinus/canApplyForm");
+    this.$store.dispatch("timeFrame/get");
     this.$store.dispatch("form/get");
-    //TODO 应该放到store
-    this.errorHandler(
-      axios({
-        method: "get",
-        url: "/api/form/intent",
-      }).then((response) => {
-        this.intent = response.data.intent;
-        this.model.parallel = response.data.intent.parallel;
-      })
-    );
-
     this.model = this.stored_model;
   },
 };

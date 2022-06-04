@@ -39,14 +39,14 @@ func AdminAuth() gin.HandlerFunc {
 		access_token := session.Get("access_token")
 		if access_token == nil {
 			log.Println("access_token unfound")
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		token := fmt.Sprint(access_token)
 		admin, err := getAdmin(token)
 		if err != nil {
 			log.Println("get admin err: ", err.Error())
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 		c.Set("admin", admin)

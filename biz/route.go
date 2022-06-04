@@ -43,14 +43,14 @@ func Run() {
 	applicant := r.Group("/api/applicant")                    // 报名者登录后接口
 	applicant.Use(mid.ApplicantAuth())
 	{
-		applicant.GET("/info", ctrl.ApplicantInfo) // 我的微信信息
-		applicant.GET("/status")                   // 我的状态信息（步骤+面试时间+面试结果）
+		applicant.GET("/wechat", ctrl.ApplicantWechat) // 我的微信信息
+		applicant.GET("/status", ctrl.ApplicantStatus) // 我的状态信息（表单内容+步骤+面试时间+面试结果）
 
 		applicant.GET("/answer/:group", ctrl.ApplicantGetAnswer) // 我的题库回答
 		applicant.POST("/answer", ctrl.ApplicantSubmitAnswer)    // 提交题库回答
 
-		applicant.POST("/apply") // 提交表单
-		applicant.POST("/time")  // 选择面试时间
+		applicant.PUT("/apply", ctrl.ApplicantApply) // 提交表单
+		applicant.POST("/time")                      // 选择面试时间
 	}
 
 	r.POST("/api/admin/login/:code", mid.AdminLogin) // 面试官登录
@@ -64,12 +64,12 @@ func Run() {
 
 		admin.PUT("/setting/:key", ctrl.UpdateSetting) // 修改设置
 
-		admin.GET("/applicant:id", ctrl.AdminGetApplicantInfo) // 获取面试者信息，包括分数、排名、状态
-		admin.PUT("/admit", ctrl.AdminAdmit)                   // 录取
-		admin.DELETE("/admit", ctrl.AdminAdmit)                // 取消录取
-		admin.GET("/remark/:id", ctrl.GetRemark)               // 获取我对特定面试者的评价
-		admin.POST("/remark/:id", ctrl.SetRemark)              // 修改我对特定面试者的评价
-		score := admin.Group("/score")                         // 我对特定面试者的评分
+		admin.GET("/applicant/:id", ctrl.AdminGetApplicantInfo) // 获取面试者信息，包括分数、排名、状态
+		admin.PUT("/admit", ctrl.AdminAdmit)                    // 录取
+		admin.DELETE("/admit", ctrl.AdminAdmit)                 // 取消录取
+		admin.GET("/remark/:id", ctrl.GetRemark)                // 获取我对特定面试者的评价
+		admin.POST("/remark/:id", ctrl.SetRemark)               // 修改我对特定面试者的评价
+		score := admin.Group("/score")                          // 我对特定面试者的评分
 		{
 			score.GET("/:id", ctrl.GetScore)    // 获取评分
 			score.POST("/:id", ctrl.SetScore)   // 修改评分

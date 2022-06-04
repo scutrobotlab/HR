@@ -24,7 +24,10 @@ func (f *Faker) GenAdmin(cnt uint) {
 func (f *Faker) GenApplicant(cnt uint) {
 	applicants := make([]*model.Applicant, cnt)
 	for i := uint(0); i < cnt; i++ {
-		gender := rand.Int()%2 == 0
+		gender := "male"
+		if rand.Int()%2 == 0 {
+			gender = "female"
+		}
 		phone := f.getPhone()
 		class, school := f.getClassAndSchool()
 

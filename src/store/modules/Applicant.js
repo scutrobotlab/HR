@@ -7,7 +7,7 @@ export default {
     intents: [],
     step: 0,
     model: {
-      wechat_id: null,
+      open_id: null,
       name: "",
       gender: "",
       phone: "",
@@ -21,49 +21,37 @@ export default {
     setModel({state}, model) {
       state.model = model;
     },
-    getModel({ state }) {
+    get({ state }) {
       return axios({
         method: "get",
-        url: "/api/joinus/form",
+        url: "/api/applicant/status",
       }).then((response) => {
-        if (response.data.applicant) {
-          state.model.name = response.data.applicant.name;
-          state.model.gender = response.data.applicant.gender;
-          state.model.phone = response.data.applicant.phone;
-          if (response.data.applicant.intents)
-            state.model.intents = response.data.applicant.intents.map((intent) => intent.group);
-          state.model.form = response.data.applicant.form;
+        if (response.status === 204) {
+          state.step = 0;
+          return
+        } else if (response.status === 200) {
+          state.step = 1;
+          state.model.name = response.data.name;
+          state.model.gender = response.data.gender;
+          state.model.phone = response.data.phone;
+          if (response.data.intents)
+            state.model.intents = response.data.intents.map((intent) => intent.group);
+          state.model.form = response.data.form;
         }
       })
     },
 
     wechatInfo({ state }) {
-      return axios.get("/api/joinus/wechat").then((response) => {
+      return axios.get("/api/applicant/wechat").then((response) => {
         state.wechat = response.data;
       });
     },
 
     wechatLogin({ state }, token) {
-      return axios.post("/api/joinus/login/" + token).then((response) => {
+      return axios.post("/api/applicant/login/" + token).then((response) => {
         state.wechat = response.data;
       });
     },
 
-    getStep({ state }) {
-      return axios.get("/api/joinus/step/").then((response) => {
-        state.step = response.data.step;
-      });
-    },
-
-    getIntents({ state }) {
-      return axios({
-        method: "get",
-        url: "/api/joinus/intents",
-        params: { wechat_id: state.wechat.openid },
-      }).then((response) => {
-        state.intents = [];
-        state.intents = response.data.intents.map((intent) => intent.group);
-      })
-    },
   },
 };

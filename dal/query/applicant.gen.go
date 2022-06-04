@@ -31,10 +31,10 @@ func newApplicant(db *gorm.DB) applicant {
 	_applicant.DeletedAt = field.NewField(tableName, "deleted_at")
 	_applicant.OpenID = field.NewString(tableName, "open_id")
 	_applicant.Name = field.NewString(tableName, "name")
-	_applicant.Gender = field.NewBool(tableName, "gender")
+	_applicant.Gender = field.NewString(tableName, "gender")
 	_applicant.Phone = field.NewString(tableName, "phone")
 	_applicant.Avatar = field.NewString(tableName, "avatar")
-	_applicant.Form = field.NewField(tableName, "form")
+	_applicant.Form = field.NewString(tableName, "form")
 	_applicant.Intents = applicantIntents{
 		db: db.Session(&gorm.Session{}),
 
@@ -110,10 +110,10 @@ type applicant struct {
 	DeletedAt field.Field
 	OpenID    field.String
 	Name      field.String
-	Gender    field.Bool
+	Gender    field.String
 	Phone     field.String
 	Avatar    field.String
-	Form      field.Field
+	Form      field.String
 	Intents   applicantIntents
 
 	Answers applicantAnswers
@@ -139,10 +139,10 @@ func (a *applicant) updateTableName(table string) *applicant {
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.OpenID = field.NewString(table, "open_id")
 	a.Name = field.NewString(table, "name")
-	a.Gender = field.NewBool(table, "gender")
+	a.Gender = field.NewString(table, "gender")
 	a.Phone = field.NewString(table, "phone")
 	a.Avatar = field.NewString(table, "avatar")
-	a.Form = field.NewField(table, "form")
+	a.Form = field.NewString(table, "form")
 
 	a.fillFieldMap()
 

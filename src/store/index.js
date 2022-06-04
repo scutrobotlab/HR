@@ -9,7 +9,7 @@ import NameList from "./modules/NameList";
 import Groups from "./modules/Groups";
 import Form from "./modules/Form";
 import Statistics from "./modules/Statistics";
-import AllowJoinus from "./modules/AllowJoinus";
+import TimeFrame from "./modules/TimeFrame";
 
 Vue.use(Vuex);
 
@@ -27,6 +27,6 @@ export default new Vuex.Store({
     groups: Groups,
     form: Form,
     statistics: Statistics,
-    allowJoinus: AllowJoinus
+    timeFrame: TimeFrame
   },
 });
